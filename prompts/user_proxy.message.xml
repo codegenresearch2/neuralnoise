@@ -1,0 +1,16 @@
+<user-message>
+  <task>
+    Create a podcast script based on the provided context and using the specified speakers.
+  </task>
+  <input-parameters>
+    <show>${show}</show>
+    <speakers>${speakers}</speakers>
+    <content>${content}</content>
+  </input-parameters>
+  <process-steps>
+    Coordinate content analysis, planning, script generation, and editing until the script is complete.
+  </process-steps>
+  <guidelines>
+    Ensure that each agent receives the necessary information and keep track of progress. Be attentive to the TERMINATE signal from the Planner to end the process.
+  </guidelines>
+</user-message>

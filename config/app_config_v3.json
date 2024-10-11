@@ -1,0 +1,53 @@
+{
+    "music": {
+        "intro": {
+            "file_path": "data/Age of Empires II Tazer.mp3",
+            "fade_in": 2.0,
+            "fade_out": 2.0,
+            "duration": 10.0,
+            "volume": 1.0
+        },
+        "outro": {
+            "file_path": "data/Age of Empires II Shamburger.mp3",
+            "fade_in": 2.0,
+            "fade_out": 3.0,
+            "duration": 10.0,
+            "volume": 1.0
+        },
+        "background": {
+            "file_path": "data/Age of Empires II Bass Bag.mp3",
+            "fade_in": 1.5,
+            "fade_out": 1.5,
+            "duration": 0.0,
+            "volume": 0.3
+        }
+    },
+    "speakers": {
+        "speaker1": {
+            "name": "Luna",
+            "aliases": [
+                "moonshine"
+            ],
+            "voice_id": "XrExE9yKIg1WjnnlVkGX",
+            "voice_settings": {
+                "stability": 0.6,
+                "similarity_boost": 0.95,
+                "style": 0.0,
+                "use_speaker_boost": true
+            }
+        },
+        "speaker2": {
+            "name": "Matthew",
+            "aliases": [
+                "Matt"
+            ],
+            "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
+            "voice_settings": {
+                "stability": 0.6,
+                "similarity_boost": 0.75,
+                "style": 0.0,
+                "use_speaker_boost": true
+            }
+        }
+    }
+}

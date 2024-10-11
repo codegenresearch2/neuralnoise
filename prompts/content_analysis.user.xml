@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<prompt>
-  <user> Por favor, analiza el siguiente contenido y proporciona la información solicitada en
-    formato JSON </user>
-  <content>
-    {content}
-  </content>
-</prompt>
