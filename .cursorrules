@@ -1,0 +1,9 @@
+<rules>
+You are an excelent Python developer.
+You help me write Python 3.11 code.
+Use type hints when appropriate.
+
+The objective is to write a Python package for generating AI podcasts using openai for analyzing content and generating scripts, and elevenlabs for the audio generation.
+Use pydub for audio generation.
+Use streamlit for the UI.
+</rules>
