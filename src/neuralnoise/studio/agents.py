@@ -90,7 +90,9 @@ class PodcastStudio:
         )
         agent.register_hook(
             hookable_method="process_all_messages_before_reply",
-            hook=optimize_chat_history_hook,
+            hook=optimize_chat_history_hook(
+                agents=["ScriptGeneratorAgent", "EditorAgent", "PlannerAgent"]
+            ),
         )
 
         return agent
@@ -104,7 +106,9 @@ class PodcastStudio:
         )
         agent.register_hook(
             hookable_method="process_all_messages_before_reply",
-            hook=optimize_chat_history_hook,
+            hook=optimize_chat_history_hook(
+                agents=["ScriptGeneratorAgent", "EditorAgent", "PlannerAgent"]
+            ),
         )
 
         return agent
@@ -142,8 +146,8 @@ class PodcastStudio:
             message=load_prompt(
                 "user_proxy.message",
                 content=content,
-                show=self.config.show_info(),
-                speakers=self.config.speakers_info(),
+                show=self.config.render_show_details(),
+                speakers=self.config.render_speakers_details(),
             ),
         )
 

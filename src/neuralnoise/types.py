@@ -1,3 +1,4 @@
+from textwrap import dedent
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -20,32 +21,47 @@ class SpeakerSettings(BaseModel):
     voice_settings: VoiceSettings | None = None
 
 
-class Speaker(BaseModel):
+def _display_field(field: str):
+    return " ".join([f.capitalize() for f in field.split("_")])
+
+
+class BaseModelDisplay(BaseModel):
+    def render(self, title: str, fields: list[str] | None = None):
+        if fields is None:
+            fields = list(self.__dict__.keys())
+
+        content = "\n".join(
+            [f"\t{_display_field(f)}: {getattr(self, f)}" for f in fields]
+        )
+
+        return dedent(f"""
+            {title}:
+            {content}
+        """)
+
+
+class Speaker(BaseModelDisplay):
     name: str
     about: str
 
     settings: SpeakerSettings
 
 
-class Show(BaseModel):
+class Show(BaseModelDisplay):
     name: str
     about: str
     language: str
 
 
-class StudioConfig(BaseModel):
+class StudioConfig(BaseModelDisplay):
     show: Show
     speakers: dict[str, Speaker]
 
-    def show_info(self) -> str:
-        return (
-            f"Show:\n\n\tName: {self.show.name}\n\tAbout: {self.show.about}"
-            f"\n\tLanguage: {self.show.language}"
-        )
+    def render_show_details(self) -> str:
+        return self.show.render("Show")
 
-    def speakers_info(self) -> str:
-        return "\n".join(
-            f"{speaker_id}:\n\n\tName: {self.speakers[speaker_id].name}"
-            f"\n\tAbout: {self.speakers[speaker_id].about}"
-            for speaker_id in self.speakers
+    def render_speakers_details(self) -> str:
+        return "\n\n".join(
+            speaker.render(speaker_id, ["name", "about"])
+            for speaker_id, speaker in self.speakers.items()
         )

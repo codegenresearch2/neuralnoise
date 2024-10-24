@@ -1,7 +1,13 @@
 import json
+import logging
 import os
 from datetime import datetime
-from typing import Any
+from functools import wraps
+from typing import Any, Callable
+
+from autogen.agentchat import Agent
+
+logger = logging.getLogger(__name__)
 
 
 def save_last_json_message_hook(filename: str, output_dir: str):
@@ -16,30 +22,47 @@ def save_last_json_message_hook(filename: str, output_dir: str):
         with open(filepath, "w") as f:
             f.write(message)
 
+        logger.debug(f"Saved agent message to {filepath}")
+
         return message
 
     return hook
 
 
+Message = dict[str, Any]
+Messages = list[Message]
+
+
 def optimize_chat_history_hook(
-    messages: list[dict[str, Any]],
-) -> list[dict[str, Any]]:
-    last_messages = {}
-    agents_to_keep_last = {"ScriptGeneratorAgent", "EditorAgent", "PlannerAgent"}
+    agents: list[Agent | str],
+) -> Callable[[Messages], Messages]:
+    """Optimizes the chat history by keeping the last message for each of the
+    agents in the list.
+    """
 
-    new_messages: list[dict[str, Any]] = []
-    for message in reversed(messages):
-        agent_name = message["name"]
-        if agent_name in agents_to_keep_last:
-            if agent_name not in last_messages:
-                last_messages[agent_name] = message
+    @wraps(optimize_chat_history_hook)
+    def hook(messages: Messages) -> Messages:
+        last_messages = {}
+        agents_names = {
+            agent.name if isinstance(agent, Agent) else agent for agent in agents
+        }
+
+        new_messages: list[dict[str, Any]] = []
+        for message in reversed(messages):
+            agent_name = message["name"]
+
+            if agent_name in agents_names:
+                if agent_name not in last_messages:
+                    last_messages[agent_name] = message
+                    new_messages.append(message)
+            else:
                 new_messages.append(message)
-        else:
-            new_messages.append(message)
 
-    print(
-        f"On ScriptGeneratorAgent hook, #messages: {len(messages)} "
-        f"-> #new-messages: {len(new_messages)}"
-    )
+        logger.debug(
+            f"On optimize_chat_history hook, #messages: {len(messages)} "
+            f"-> #optimized-messages: {len(new_messages)}"
+        )
 
-    return list(reversed(new_messages))
+        return list(reversed(new_messages))
+
+    return hook
