@@ -3,9 +3,11 @@ import time
 from pathlib import Path
 from typing import Iterator
 
+import backoff
 from elevenlabs import Voice, VoiceSettings, save
 from elevenlabs.client import ElevenLabs
 from openai import OpenAI
+from openai import APIError, RateLimitError
 from pydub import AudioSegment
 
 from neuralnoise.types import Speaker
@@ -38,21 +40,28 @@ def generate_audio_segment_elevenlabs(
     return audio
 
 
+@backoff.on_exception(backoff.expo, (RateLimitError, APIError), max_tries=5)
 def generate_audio_segment_openai(
     content: str,
     speaker: Speaker,
 ) -> bytes | Iterator[bytes]:
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    audio = client.audio.speech.create(
-        model=speaker.settings.voice_model,
-        voice=speaker.settings.voice_id,  # type: ignore
-        input=content,
-    )
-
-    time.sleep(1)
-
-    return audio.content
+    try:
+        audio = client.audio.speech.create(
+            model=speaker.settings.voice_model,
+            voice=speaker.settings.voice_id,  # type: ignore
+            input=content,
+        )
+        return audio.content
+    except RateLimitError as e:
+        print(f"Rate limit reached: {e}. Retrying...")
+        raise
+    except APIError as e:
+        print(f"API error occurred: {e}. Retrying...")
+        raise
+    finally:
+        time.sleep(0.5)
 
 
 TTS_PROVIDERS = {

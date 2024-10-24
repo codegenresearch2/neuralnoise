@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from pydub import AudioSegment
+from pydub.effects import normalize
 from rich.progress import Progress
 
 from neuralnoise.studio import PodcastStudio
@@ -63,6 +64,8 @@ def create_podcast_episode_from_script(
 
     for chunk in audio_segments:
         podcast += chunk
+
+    podcast = normalize(podcast)
 
     return podcast
 

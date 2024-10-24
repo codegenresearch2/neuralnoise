@@ -11,13 +11,7 @@
       "settings": {
         "provider": "openai",
         "voice_model": "tts-1",
-        "voice_id": "alloy",
-        "voice_settings": {
-          "stability": 0.6,
-          "similarity_boost": 0.95,
-          "style": 0.0,
-          "use_speaker_boost": true
-        }
+        "voice_id": "alloy"
       }
     },
     "speaker2": {
@@ -26,13 +20,7 @@
       "settings": {
         "provider": "openai",
         "voice_model": "tts-1",
-        "voice_id": "nova",
-        "voice_settings": {
-          "stability": 0.6,
-          "similarity_boost": 0.75,
-          "style": 0.0,
-          "use_speaker_boost": true
-        }
+        "voice_id": "nova"
       }
     }
   }

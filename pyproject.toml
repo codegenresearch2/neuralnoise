@@ -9,6 +9,8 @@ authors = [
 requires-python = ">=3.10,<3.12"
 dependencies = [
     "autogen-agentchat~=0.2",
+    "backoff>=2.2.1",
+    "crawl4ai>=0.3.3",
     "elevenlabs>=1.10.0",
     "openai>=1.52.2",
     "pydantic>=2.9.2",
