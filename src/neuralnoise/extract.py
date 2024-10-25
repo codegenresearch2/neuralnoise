@@ -1,31 +1,53 @@
 import os
-from asyncio import run
 from pathlib import Path
+from tempfile import NamedTemporaryFile
+
+import requests
+from langchain_community.document_loaders import (
+    BSHTMLLoader,
+    PyMuPDFLoader,
+    TextLoader,
+    YoutubeLoader,
+)
+from langchain_community.document_loaders.base import BaseLoader
 
 
-async def crawl_web(url: str) -> str:
-    from crawl4ai import AsyncWebCrawler
+def get_best_loader(extract_from: str | Path) -> BaseLoader:
+    match extract_from:
+        case str() | Path() if os.path.isfile(extract_from):
+            if os.path.splitext(extract_from)[1] == ".pdf":
+                return PyMuPDFLoader(file_path=str(extract_from))
+            else:
+                return TextLoader(file_path=extract_from)
+        case str() if extract_from.startswith("http"):
+            if "youtube" in extract_from:
+                video_id = YoutubeLoader.extract_video_id(extract_from)
+                return YoutubeLoader(video_id=video_id)
+            else:
+                html_content = requests.get(extract_from).text
 
-    async with AsyncWebCrawler(verbose=True) as crawler:
-        result = await crawler.arun(
-            url,
-            css_selector="article",
-        )
+                with NamedTemporaryFile(delete=False, mode="w", suffix=".html") as f:
+                    f.write(html_content)
 
-    if result.markdown is None:
-        raise ValueError(f"No valid content found at {url}")
+                loader = BSHTMLLoader(file_path=f.name)
+                f.close()
 
-    return result.markdown
+                return loader
+        case _:
+            raise ValueError("Invalid input")
 
 
 def extract_content(extract_from: str | Path) -> str:
-    # TODO: allow more types if content extraction
-    if os.path.isfile(extract_from):
-        with open(extract_from, "r") as file:
-            content = file.read()
-    elif isinstance(extract_from, str) and extract_from.startswith("http"):
-        content = run(crawl_web(extract_from))
-    else:
-        raise ValueError("Invalid input")
+    loader = get_best_loader(extract_from)
+
+    docs = loader.load()
+
+    content = ""
+
+    for doc in docs:
+        if doc.metadata.get("title"):
+            content += f"\n\n# {doc.metadata['title']}\n\n"
+
+        content += doc.page_content.strip()
 
     return content
