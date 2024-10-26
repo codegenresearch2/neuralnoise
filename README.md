@@ -8,13 +8,12 @@ Neural Noise is an AI-powered podcast studio that uses multiple AI agents workin
 
 ## Examples
 
-### BBC AI Podcast
+| Source | Neural Noise | NotebookLM |
+| ------ | ------------ | ---------- |
 
-Episode generated from this BBC article: https://www.bbc.com/news/articles/c7v62gg49zro
-
-<div align="center">
-  <audio src="./assets/example_bbc_ai_podcast.mp4" controls></audio>
-</div>
+| [BBC News article (TikTok owner sacks intern for sabotaging AI project
+)](https://www.bbc.com/news/articles/c7v62gg49zro) | [Listen to Neural Noise version](placeholder_link) | [Listen to NotebookLM version](placeholder_link) |
+| [BBC AI Podcast](https://www.bbc.com/news/articles/c7v62gg49zro) | [Listen to Neural Noise version](placeholder_link) | [Listen to NotebookLM version](placeholder_link) |
 
 ## Objective
 
@@ -45,9 +44,11 @@ To install Neural Noise, follow these steps:
    uv sync
    ```
 
-4. Set up your API keys:
+2. Set up your API keys:
+
    - Create a `.env` file in the project root
    - Add your OpenAI and ElevenLabs API keys:
+
      ```
      OPENAI_API_KEY=your_openai_api_key
 
@@ -80,7 +81,7 @@ The application will regenerate the podcast, preserving unmodified segments and 
 - [ ] Add local LLM provider. More generic LLM configuration. Leverage AutoGen for this.
 - [ ] Add local TTS provider
 - [ ] Add podcast generation format options: interview, narrative, etc.
-- [ ] Add more agent roles to the studio. For example, a "Content Curator"  or "Content Researcher" that uses tools to find and curate content before being analyzed. Or a "Sponsor" agent that adds segways to ads in the podcast script ([à la LTT](https://www.youtube.com/live/EefvOLKoXdg?si=G1714t2jK4ZIvao0&t=5307)).
+- [ ] Add more agent roles to the studio. For example, a "Content Curator" or "Content Researcher" that uses tools to find and curate content before being analyzed. Or a "Sponsor" agent that adds segways to ads in the podcast script ([à la LTT](https://www.youtube.com/live/EefvOLKoXdg?si=G1714t2jK4ZIvao0&t=5307)).
 - [ ] Add music and sound effects options
 - [ ] Real-time podcast generation with human and AI collaboration (🤔)
 
@@ -92,6 +93,7 @@ Contributions to Neural Noise are welcome! Please feel free to submit a Pull Req
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Disclaimer
+## Related projects
 
-This project is for educational and experimental purposes only. Ensure you comply with the terms of service of all third-party APIs used in this project.
+- [NotebookLM](https://notebooklm.google.com/)
+- [Podcastify.ai](https://github.com/souzatharsis/podcastfy)

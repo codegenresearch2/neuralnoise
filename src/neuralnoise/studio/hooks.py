@@ -3,6 +3,7 @@ import logging
 import os
 from datetime import datetime
 from functools import wraps
+from pathlib import Path
 from typing import Any, Callable
 
 from autogen.agentchat import Agent
@@ -10,7 +11,7 @@ from autogen.agentchat import Agent
 logger = logging.getLogger(__name__)
 
 
-def save_last_json_message_hook(filename: str, output_dir: str):
+def save_last_json_message_hook(filename: str, output_dir: str | Path):
     os.makedirs(output_dir, exist_ok=True)
 
     def hook(sender, message, recipient, silent):

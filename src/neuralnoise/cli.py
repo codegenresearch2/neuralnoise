@@ -13,7 +13,7 @@ load_dotenv()
 
 @app.command()
 def new(
-    input: str = typer.Argument(..., help="Path to the input text file"),
+    input: str = typer.Argument(..., help="Path to the input file or URL"),
     name: str = typer.Option(..., help="Name of the podcast episode"),
     config_file: Path = typer.Option(
         ..., help="Path to the podcast configuration file"

@@ -2,7 +2,7 @@ import hashlib
 import json
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from pydub import AudioSegment
 from pydub.effects import normalize
@@ -74,6 +74,7 @@ def create_podcast_episode(
     name: str,
     content: str,
     config_file: str | Path,
+    format: Literal["wav", "mp3", "ogg"] = "ogg",
     only_script: bool = False,
 ):
     # Create output directory
@@ -86,17 +87,17 @@ def create_podcast_episode(
         config = StudioConfig.model_validate_json(f.read())
 
     # Generate the script
-    script_cache_filepath = output_dir / f"{name}_script.json"
-    if script_cache_filepath.exists():
+    script_path = output_dir / f"script.json"
+
+    if script_path.exists():
         logger.info("💬  Loading cached script")
-        with open(script_cache_filepath, "r", encoding="utf-8") as f:
-            script = json.load(f)
+        script = json.loads(script_path.read_text(encoding="utf-8"))
     else:
         logger.info("💬  Generating podcast script")
-        studio = PodcastStudio(name, config=config)
+        studio = PodcastStudio(work_dir=output_dir, config=config)
         script = studio.generate_script(content)
-        with open(script_cache_filepath, "w", encoding="utf-8") as f:
-            json.dump(script, f, ensure_ascii=False, indent=2)
+
+        script_path.write_text(json.dumps(script), encoding="utf-8")
 
     if only_script:
         return
@@ -106,8 +107,8 @@ def create_podcast_episode(
     podcast = create_podcast_episode_from_script(script, config, output_dir=output_dir)
 
     # Export podcast
-    podcast_filepath = output_dir / f"{name}.wav"
+    podcast_filepath = output_dir / f"output.{format}"
     logger.info("️💾  Exporting podcast to %s", podcast_filepath)
-    podcast.export(podcast_filepath, format="wav")
+    podcast.export(podcast_filepath, format=format)
 
     logger.info("✅  Podcast generation complete")
