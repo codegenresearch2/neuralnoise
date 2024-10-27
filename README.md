@@ -11,8 +11,8 @@ Neural Noise is an AI-powered podcast studio that uses multiple AI agents workin
 | Source | Neural Noise |
 | ------ | ------------ |
 | [TikTok owner sacks intern for sabotaging AI project](https://www.bbc.com/news/articles/c7v62gg49zro) | <video src="https://github.com/user-attachments/assets/e79982c8-bb58-4395-8bce-aa25eee0b5c5" /> |
-| [Linus Torvalds Comments On The Russian Linux Maintainers Being Delisted](https://www.phoronix.com/news/Linus-Torvalds-Russian-Devs) | <video src="https://github.com/user-attachments/assets/53fabfd9-5422-431a-9ed5-6d9dd58de92e" /> |
-| [Before you buy a domain name, first check to see if it's haunted](https://www.bryanbraun.com/2024/10/25/before-you-buy-a-domain-name-first-check-to-see-if-its-haunted/) | <video src="https://github.com/user-attachments/assets/85671e26-ae06-4152-b6a2-e5aa6916e5b0" /> |
+| [Before you buy a domain name, first check to see if it's haunted](https://www.bryanbraun.com/2024/10/25/before-you-buy-a-domain-name-first-check-to-see-if-its-haunted/) | <video src="https://github.com/user-attachments/assets/53fabfd9-5422-431a-9ed5-6d9dd58de92e" /> |
+| [Linus Torvalds Comments On The Russian Linux Maintainers Being Delisted](https://www.phoronix.com/news/Linus-Torvalds-Russian-Devs) | <video src="https://github.com/user-attachments/assets/85671e26-ae06-4152-b6a2-e5aa6916e5b0" /> |
 
 ## Objective
 
