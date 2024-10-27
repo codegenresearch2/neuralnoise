@@ -74,7 +74,7 @@ def create_podcast_episode(
     name: str,
     content: str,
     config_file: str | Path,
-    format: Literal["wav", "mp3", "ogg"] = "ogg",
+    format: Literal["wav", "mp3", "ogg"] = "wav",
     only_script: bool = False,
 ):
     # Create output directory
