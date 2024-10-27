@@ -17,9 +17,7 @@ load_dotenv()
 def new(
     input: str = typer.Argument(..., help="Path to the input file or URL"),
     name: str = typer.Option(..., help="Name of the podcast episode"),
-    config_file: Path = typer.Option(
-        ..., help="Path to the podcast configuration file"
-    ),
+    config: Path = typer.Option(..., help="Path to the podcast configuration file"),
     only_script: bool = typer.Option(False, help="Only generate the script and exit"),
 ):
     """
@@ -27,7 +25,7 @@ def new(
 
     For example:
 
-    nn <url|file> --name <name> --config-file config/config_openai.json
+    nn new <url|file> --name <name> --config config/config_openai.json
     """
     typer.echo(f"Generating script from {input}")
 
@@ -44,7 +42,7 @@ def new(
     create_podcast_episode(
         name,
         content,
-        config_file=config_file,
+        config_path=config,
         only_script=only_script,
     )
 

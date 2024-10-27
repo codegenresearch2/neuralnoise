@@ -19,7 +19,7 @@
             speaker: "speaker1" | "speaker2";
             content: string;
             type: "narrative" | "reaction" | "question";
-            blank_duration?: number; // Time in seconds (0.1 to 1.0) for silence after speaking
+            blank_duration?: number; // Time in seconds (0.1, 0.2, 0.3, or 0.5) for silence after speaking
           }>;
         }
       ]]>

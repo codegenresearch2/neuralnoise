@@ -1,6 +1,6 @@
 [project]
 name = "neuralnoise"
-version = "0.5.0"
+version = "0.6.0"
 description = "An AI-powered podcast studio that uses multiple AI agents working together."
 authors = [
     { name = "Leonardo Piñeyro", email = "leopiney@gmail.com" }

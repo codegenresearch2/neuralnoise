@@ -73,7 +73,8 @@ def create_podcast_episode_from_script(
 def create_podcast_episode(
     name: str,
     content: str,
-    config_file: str | Path,
+    config: StudioConfig | None = None,
+    config_path: str | Path | None = None,
     format: Literal["wav", "mp3", "ogg"] = "wav",
     only_script: bool = False,
 ):
@@ -82,12 +83,16 @@ def create_podcast_episode(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load configuration
-    logger.info("🔧  Loading configuration from %s", config_file)
-    with open(config_file, "r") as f:
-        config = StudioConfig.model_validate_json(f.read())
+    if config_path:
+        logger.info("🔧  Loading configuration from %s", config_path)
+        with open(config_path, "r") as f:
+            config = StudioConfig.model_validate_json(f.read())
+
+    if not config:
+        raise ValueError("No studio configuration provided")
 
     # Generate the script
-    script_path = output_dir / f"script.json"
+    script_path = output_dir / "script.json"
 
     if script_path.exists():
         logger.info("💬  Loading cached script")
