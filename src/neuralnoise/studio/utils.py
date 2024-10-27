@@ -3,7 +3,6 @@ from pathlib import Path
 from string import Template
 from typing import cast
 
-
 PKG_ROOT = cast(Path, files("neuralnoise").joinpath(""))
 
 

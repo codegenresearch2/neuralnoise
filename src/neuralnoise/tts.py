@@ -6,8 +6,7 @@ from typing import Iterator
 import backoff
 from elevenlabs import Voice, VoiceSettings, save
 from elevenlabs.client import ElevenLabs
-from openai import OpenAI
-from openai import APIError, RateLimitError
+from openai import APIError, OpenAI, RateLimitError
 from pydub import AudioSegment
 
 from neuralnoise.types import Speaker

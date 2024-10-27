@@ -106,11 +106,9 @@ openai_api_key.txt
 .DS_Store
 Thumbs.db
 
+# Cool shit
+.cursorrules
+
 # Project-specific
-podcasts/
-scripts/
-*.mp3
-
-
 data/
 output/

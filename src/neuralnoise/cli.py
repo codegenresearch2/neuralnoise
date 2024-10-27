@@ -1,9 +1,10 @@
 from pathlib import Path
+
 import typer
 from dotenv import load_dotenv
 from pydub import AudioSegment
-from tabulate import tabulate
 from pydub.exceptions import CouldntDecodeError
+from tabulate import tabulate
 
 from neuralnoise.extract import extract_content
 from neuralnoise.studio import create_podcast_episode
