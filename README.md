@@ -40,7 +40,7 @@ To install Neural Noise, follow these steps:
    ```
    git clone https://github.com/leopiney/neuralnoise.git
    cd neuralnoise
-   uv sync
+   pip install .
    ```
 
 2. Set up your API keys:
@@ -80,6 +80,7 @@ The application will regenerate the podcast, preserving unmodified segments and 
 - [ ] Add local LLM provider. More generic LLM configuration. Leverage AutoGen for this.
 - [ ] Add local TTS provider
 - [ ] Add podcast generation format options: interview, narrative, etc.
+- [ ] Add podcast generation from multiple source files
 - [ ] Add more agent roles to the studio. For example, a "Content Curator" or "Content Researcher" that uses tools to find and curate content before being analyzed. Or a "Sponsor" agent that adds segways to ads in the podcast script ([à la LTT](https://www.youtube.com/live/EefvOLKoXdg?si=G1714t2jK4ZIvao0&t=5307)).
 - [ ] Add music and sound effects options
 - [ ] Real-time podcast generation with human and AI collaboration (🤔)

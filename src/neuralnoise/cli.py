@@ -25,7 +25,7 @@ def new(
 
     For example:
 
-    nn new https://www.bbc.com/news/articles/c7v62gg49zro --name bbc_ai_podcast --config-file config/ai_podcast_config.json
+    nn <url|file> --name <name> --config-file config/config_openai.json
     """
     typer.echo(f"Generating script from {input}")
 

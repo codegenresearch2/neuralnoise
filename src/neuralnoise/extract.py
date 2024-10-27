@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
-import requests
+import requests  # type: ignore
 from langchain_community.document_loaders import (
     BSHTMLLoader,
     PyMuPDFLoader,
