@@ -15,13 +15,13 @@ NeuralNoise is an AI-powered podcast studio that uses multiple AI agents working
 
 ## Examples
 
-| Source | Type | NeuralNoise |
-| ---- | ---- | ---- |
-| [TikTok owner sacks intern for sabotaging AI project](https://www.bbc.com/news/articles/c7v62gg49zro)                                                                    | 🌐 Web article | <video src="https://github.com/user-attachments/assets/e79982c8-bb58-4395-8bce-aa25eee0b5c5" /> |
-| [Before you buy a domain name, first check to see if it's haunted](https://www.bryanbraun.com/2024/10/25/before-you-buy-a-domain-name-first-check-to-see-if-its-haunted/)| 🌐 Web article | <video src="https://github.com/user-attachments/assets/53fabfd9-5422-431a-9ed5-6d9dd58de92e" /> |
-| [Linus Torvalds Comments On The Russian Linux Maintainers Being Delisted](https://www.phoronix.com/news/Linus-Torvalds-Russian-Devs)                                     | 🌐 Web article | <video src="https://github.com/user-attachments/assets/85671e26-ae06-4152-b6a2-e5aa6916e5b0" /> |
-| [Hallo2: Long-Duration and High-Resolution Audio-Driven Portrait Image Animation](https://arxiv.org/pdf/2410.07718v2)                                                    | 📗 PDF | <video src="https://github.com/user-attachments/assets/9bf999f7-59d9-4f04-a2aa-892c4d727a21" /> |
-| [Ep17. Welcome Jensen Huang \| BG2 w/ Bill Gurley & Brad Gerstner](https://youtu.be/bUrCR4jQQg8?si=UeF4JQ4rDZJG-l3W)                                                     | 📺 YouTube | <video src="https://github.com/user-attachments/assets/e5ac1c08-46d3-4e8b-bea7-4b30b083dc4b" /> |
+| Source | Type | NeuralNoise | Download |
+| ---- | ---- | ---- | ---- |
+| [TikTok owner sacks intern for sabotaging AI project](https://www.bbc.com/news/articles/c7v62gg49zro)                                                                    | 🌐 Web article | <video src="https://github.com/user-attachments/assets/e79982c8-bb58-4395-8bce-aa25eee0b5c5" /> | [Link](https://github.com/user-attachments/assets/e79982c8-bb58-4395-8bce-aa25eee0b5c5) |
+| [Before you buy a domain name, first check to see if it's haunted](https://www.bryanbraun.com/2024/10/25/before-you-buy-a-domain-name-first-check-to-see-if-its-haunted/)| 🌐 Web article | <video src="https://github.com/user-attachments/assets/53fabfd9-5422-431a-9ed5-6d9dd58de92e" /> | [Link](https://github.com/user-attachments/assets/53fabfd9-5422-431a-9ed5-6d9dd58de92e) |
+| [Linus Torvalds Comments On The Russian Linux Maintainers Being Delisted](https://www.phoronix.com/news/Linus-Torvalds-Russian-Devs)                                     | 🌐 Web article | <video src="https://github.com/user-attachments/assets/85671e26-ae06-4152-b6a2-e5aa6916e5b0" /> | [Link](https://github.com/user-attachments/assets/85671e26-ae06-4152-b6a2-e5aa6916e5b0) |
+| [Hallo2: Long-Duration and High-Resolution Audio-Driven Portrait Image Animation](https://arxiv.org/pdf/2410.07718v2)                                                    | 📗 PDF | <video src="https://github.com/user-attachments/assets/9bf999f7-59d9-4f04-a2aa-892c4d727a21" /> | [Link](https://github.com/user-attachments/assets/9bf999f7-59d9-4f04-a2aa-892c4d727a21) |
+| [Ep17. Welcome Jensen Huang \| BG2 w/ Bill Gurley & Brad Gerstner](https://youtu.be/bUrCR4jQQg8?si=UeF4JQ4rDZJG-l3W)                                                     | 📺 YouTube | <video src="https://github.com/user-attachments/assets/e5ac1c08-46d3-4e8b-bea7-4b30b083dc4b" /> | [Link](https://github.com/user-attachments/assets/e5ac1c08-46d3-4e8b-bea7-4b30b083dc4b)
 
 ## Objective
 
