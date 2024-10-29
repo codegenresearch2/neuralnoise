@@ -32,7 +32,7 @@ The main objective of NeuralNoise is to create a Python package that simplifies 
 - Content analysis and script generation using OpenAI's language models
 - High-quality voice synthesis with ElevenLabs or OpenAI
 - Audio processing and manipulation with pydub
-- User-friendly interface built with Streamlit
+- Easy way to modify parts of the script and regenerate the podcast
 
 ## Installation
 
