@@ -6,15 +6,13 @@ from typing import Any, Literal
 
 from pydub import AudioSegment
 from pydub.effects import normalize
-from rich.progress import Progress
+from rich.progress import track
 
 from neuralnoise.studio import PodcastStudio
 from neuralnoise.tts import generate_audio_segment
 from neuralnoise.types import StudioConfig
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,32 +31,30 @@ def create_podcast_episode_from_script(
         for segment in script["sections"][section_id]["segments"]
     ]
 
-    with Progress() as progress:
-        task = progress.add_task(
-            "[cyan]Generating audio segments...", total=len(script_segments)
+    audio_segments = []
+
+    for section_id, segment in track(
+        script_segments,
+        description="Generating audio segments...",
+        total=len(script_segments),
+    ):
+        speaker = config.speakers[segment["speaker"]]
+        content = segment["content"]
+
+        content = content.replace("¡", "").replace("¿", "")
+
+        content_hash = hashlib.md5(content.encode("utf-8")).hexdigest()
+        segment_path = temp_dir / f"{section_id}_{segment['id']}_{content_hash}.mp3"
+
+        audio_segment = generate_audio_segment(
+            content, speaker, output_path=segment_path
         )
-        audio_segments = []
 
-        for section_id, segment in script_segments:
-            speaker = config.speakers[segment["speaker"]]
-            content = segment["content"]
+        audio_segments.append(audio_segment)
 
-            content = content.replace("¡", "").replace("¿", "")
-
-            content_hash = hashlib.md5(content.encode("utf-8")).hexdigest()
-            segment_path = temp_dir / f"{section_id}_{segment['id']}_{content_hash}.mp3"
-
-            audio_segment = generate_audio_segment(
-                content, speaker, output_path=segment_path
-            )
-
-            audio_segments.append(audio_segment)
-
-            if blank_duration := segment.get("blank_duration"):
-                silence = AudioSegment.silent(duration=blank_duration * 1000)
-                audio_segments.append(silence)
-
-            progress.update(task, advance=1)
+        if blank_duration := segment.get("blank_duration"):
+            silence = AudioSegment.silent(duration=blank_duration * 1000)
+            audio_segments.append(silence)
 
     podcast = AudioSegment.empty()
 
