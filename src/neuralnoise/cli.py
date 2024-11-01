@@ -1,3 +1,4 @@
+import logging
 import shutil
 from pathlib import Path
 
@@ -14,32 +15,47 @@ from neuralnoise.utils import package_root
 app = typer.Typer()
 
 load_dotenv()
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 @app.command()
 def new(
-    input: str = typer.Argument(..., help="Path to the input file or URL"),
+    input: list[str] = typer.Argument(
+        ...,
+        help="Paths to input files or URLs. Can specify multiple inputs.",
+    ),
     name: str = typer.Option(..., help="Name of the podcast episode"),
-    config: Path = typer.Option(..., help="Path to the podcast configuration file"),
+    config: Path = typer.Option(
+        Path("config/config_openai.json"),
+        help="Path to the podcast configuration file",
+    ),
     only_script: bool = typer.Option(False, help="Only generate the script and exit"),
 ):
     """
-    Generate a script from an input text file using the specified configuration.
+    Generate a script from one or more input text files using the specified configuration.
 
     For example:
 
-    nn new <url|file> --name <name> --config config/config_openai.json
+    nn new <url|file> [<url|file>...] --name <name> --config config/config_openai.json
     """
-    typer.echo(f"Generating script from {input}")
+    typer.echo(f"Generating script from {len(input)} source(s)")
 
     output_dir = Path("output") / name
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    typer.echo(f"Extracting content from {input}")
-    content = extract_content(input)
+    typer.echo("Extracting content from inputs")
+    content_path = output_dir / "content.txt"
 
-    with open(output_dir / "content.txt", "w") as f:
-        f.write(content)
+    if content_path.exists():
+        with open(content_path, "r") as f:
+            content = f.read()
+    else:
+        content = extract_content(input)
+
+        with open(output_dir / "content.txt", "w") as f:
+            f.write(content)
 
     typer.echo(f"Generating podcast episode {name}")
     create_podcast_episode(
