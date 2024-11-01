@@ -21,12 +21,12 @@ logging.basicConfig(
 
 
 @app.command()
-def new(
-    input: list[str] = typer.Argument(
-        ...,
+def generate(
+    name: str = typer.Option(..., help="Name of the podcast episode"),
+    input: list[str] | None = typer.Argument(
+        None,
         help="Paths to input files or URLs. Can specify multiple inputs.",
     ),
-    name: str = typer.Option(..., help="Name of the podcast episode"),
     config: Path = typer.Option(
         Path("config/config_openai.json"),
         help="Path to the podcast configuration file",
@@ -38,26 +38,33 @@ def new(
 
     For example:
 
-    nn new <url|file> [<url|file>...] --name <name> --config config/config_openai.json
+    nn generate <url|file> [<url|file>...] --name <name> --config config/config_openai.json
     """
-    typer.echo(f"Generating script from {len(input)} source(s)")
+    typer.secho(f"Generating podcast episode {name}", fg=typer.colors.GREEN)
 
     output_dir = Path("output") / name
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    typer.echo("Extracting content from inputs")
     content_path = output_dir / "content.txt"
 
     if content_path.exists():
         with open(content_path, "r") as f:
             content = f.read()
     else:
+        if input is None:
+            typer.secho(
+                "No input provided. Please specify input files or URLs.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(1)
+
+        typer.secho(f"Extracting content from inputs {input}", fg=typer.colors.YELLOW)
         content = extract_content(input)
 
         with open(output_dir / "content.txt", "w") as f:
             f.write(content)
 
-    typer.echo(f"Generating podcast episode {name}")
+    typer.secho(f"Generating podcast episode {name}", fg=typer.colors.GREEN)
     create_podcast_episode(
         name,
         content,
@@ -65,7 +72,10 @@ def new(
         only_script=only_script,
     )
 
-    typer.echo(f"Podcast generation complete. Output saved to {output_dir}")
+    typer.secho(
+        f"Podcast generation complete. Output saved to {output_dir}",
+        fg=typer.colors.GREEN,
+    )
 
 
 def get_audio_length(file_path: Path) -> float:
