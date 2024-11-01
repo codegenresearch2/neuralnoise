@@ -93,7 +93,10 @@ class PodcastStudio:
         agent = AssistantAgent(
             name="ScriptGeneratorAgent",
             system_message=self.load_prompt(
-                "script_generation.system", language=self.language
+                "script_generation.system",
+                language=self.language,
+                min_segments=str(self.config.show.min_segments),
+                max_segments=str(self.config.show.max_segments),
             ),
             llm_config={"config_list": [self.llm_json_mode_config]},
         )

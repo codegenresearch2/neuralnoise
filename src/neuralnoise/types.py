@@ -53,6 +53,9 @@ class Show(BaseModelDisplay):
     about: str
     language: str
 
+    min_segments: int = 4
+    max_segments: int = 10
+
 
 class StudioConfig(BaseModelDisplay):
     show: Show
