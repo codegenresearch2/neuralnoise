@@ -15,9 +15,18 @@
 
 NeuralNoise is an AI-powered podcast studio that uses multiple AI agents working together. These agents collaborate to analyze content, write scripts, and generate audio, creating high-quality podcast content with minimal human input. The team generates a script that the cast team (using a TTS tool of your choice) will then record.
 
+## Features
+
+- 🔍 Content analysis, script generation, and content edition using [AutoGen](https://github.com/microsoft/autogen) group chat of agents
+- 📢 High-quality voice synthesis with [ElevenLabs](https://elevenlabs.io/api) or [OpenAI](https://platform.openai.com/docs/guides/text-to-speech)
+- 🔉 Audio processing and manipulation with [pydub](https://github.com/jiaaro/pydub)
+- 📜 Easy way to [manually edit parts of the script](#want-to-edit-the-generated-script) and regenerate the podcast
+
 <p align="center">
     <img src="https://api.star-history.com/svg?repos=leopiney/neuralnoise&type=Date" alt="leopiney/neuralnoise GithubStars history" />
 </p>
+
+---
 
 ## Examples
 
@@ -33,13 +42,6 @@ NeuralNoise is an AI-powered podcast studio that uses multiple AI agents working
 ## Objective
 
 The main objective of NeuralNoise is to create a Python package that simplifies the process of generating AI podcasts. It utilizes OpenAI for content analysis and script generation, ElevenLabs for high-quality text-to-speech conversion, and Streamlit for an intuitive user interface.
-
-## Features
-
-- Content analysis and script generation using OpenAI's language models
-- High-quality voice synthesis with ElevenLabs or OpenAI
-- Audio processing and manipulation with pydub
-- Easy way to modify parts of the script and regenerate the podcast
 
 ## Installation
 
