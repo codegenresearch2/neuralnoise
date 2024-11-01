@@ -96,13 +96,13 @@ def create_podcast_episode(
 
     if script_path.exists():
         logger.info("💬  Loading cached script")
-        script = json.loads(script_path.read_text(encoding="utf-8"))
+        script = json.loads(script_path.read_text())
     else:
         logger.info("💬  Generating podcast script")
         studio = PodcastStudio(work_dir=output_dir, config=config)
         script = studio.generate_script(content)
 
-        script_path.write_text(json.dumps(script), encoding="utf-8")
+        script_path.write_text(json.dumps(script, ensure_ascii=False))
 
     if only_script:
         return

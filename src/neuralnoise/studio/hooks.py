@@ -16,13 +16,11 @@ def save_last_json_message_hook(filename: str, output_dir: str | Path):
 
     def hook(sender, message, recipient, silent):
         message_dict = json.loads(message)
-        message = json.dumps(message_dict, indent=2)
+        message = json.dumps(message_dict, indent=2, ensure_ascii=False)
 
         date_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        filepath = os.path.join(output_dir, f"{filename}_{date_str}.json")
-        with open(filepath, "w") as f:
-            f.write(message)
-
+        filepath = Path(output_dir) / f"{filename}_{date_str}.json"
+        filepath.write_text(message)
         logger.debug(f"Saved agent message to {filepath}")
 
         return message

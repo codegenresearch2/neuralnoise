@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 import typer
@@ -8,6 +9,7 @@ from tabulate import tabulate
 
 from neuralnoise.extract import extract_content
 from neuralnoise.studio import create_podcast_episode
+from neuralnoise.utils import package_root
 
 app = typer.Typer()
 
@@ -99,6 +101,39 @@ def list_episodes():
     table = tabulate(episode_data, headers=headers, tablefmt="grid")
     typer.echo("Generated podcast episodes:")
     typer.echo(table)
+
+
+@app.command()
+def init(
+    output_path: Path = typer.Option(
+        Path("prompts"),
+        "--output",
+        "-o",
+        help="Directory where prompts will be copied to",
+        show_default=True,
+    ),
+):
+    """
+    Initialize a local copy of the default prompts.
+    Creates a directory with the default prompt templates.
+
+    Example:
+        nn init
+        nn init --output custom/path/prompts
+    """
+    source_dir = package_root / "prompts"
+
+    if output_path.exists():
+        typer.echo(f"Directory {output_path} already exists. Skipping initialization.")
+        return
+
+    try:
+        shutil.copytree(source_dir, output_path)
+        typer.echo(f"Successfully created prompts directory at {output_path}")
+        typer.echo("You can now customize these prompts for your podcast generation.")
+    except Exception as e:
+        typer.echo(f"Error creating prompts directory: {e}")
+        raise typer.Exit(1)
 
 
 if __name__ == "__main__":

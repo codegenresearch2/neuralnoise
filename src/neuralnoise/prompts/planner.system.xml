@@ -29,4 +29,7 @@
     message with the word 'TERMINATE'. This signal is essential to finalize the script creation
     process.
   </important-note>
+  <language>
+    ${language}
+  </language>
 </planner-agent>
