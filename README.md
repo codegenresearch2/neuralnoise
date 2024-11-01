@@ -3,8 +3,10 @@
 <p align="center">
     <a href="https://github.com/badges/shields/pulse" alt="Activity">
         <img src="https://img.shields.io/github/commit-activity/m/leopiney/neuralnoise" /></a>
-    <a href="https://pypi.python.org/pypi/neuralnoise" alt="Activity">
+    <a href="https://pypi.python.org/pypi/neuralnoise" alt="PyPI - Latest version">
         <img src="https://img.shields.io/pypi/v/neuralnoise.svg" /></a>
+    <a href="https://pypistats.org/packages/neuralnoise" alt="Latest version">
+        <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/neuralnoise"></a>
 </p>
 
 <div align="center">
@@ -12,6 +14,10 @@
 </div>
 
 NeuralNoise is an AI-powered podcast studio that uses multiple AI agents working together. These agents collaborate to analyze content, write scripts, and generate audio, creating high-quality podcast content with minimal human input. The team generates a script that the cast team (using a TTS tool of your choice) will then record.
+
+<p align="center">
+    <img src="https://api.star-history.com/svg?repos=leopiney/neuralnoise&type=Date" alt="leopiney/neuralnoise GithubStars history" />
+</p>
 
 ## Examples
 
@@ -72,7 +78,7 @@ To run the NeuralNoise application first make sure that you create a configurati
 Then you can run the application with:
 
 ```
-nn new <url|filepath> --name <name> --config-path <config>
+nn generate --name <name> <url|file> [<url|file>...]
 ```
 
 ## Want to edit the generated script?
@@ -81,17 +87,18 @@ The generated script and audio segments are saved in the `output/<name>` folder.
 
 1. Locate the JSON file in this folder containing all script segments and their text content.
 2. Make your desired changes to specific segments in the JSON file. Locate the "sections" and "segments" content in this file that you want to change, then feel free to edit the content of the segments you want to change.
-3. Run the same command as before (same name) to regenerate the podcast.
+3. Run the same command as before with the same name (`nn generate --name <name>`) to regenerate the podcast.
 
 The application will regenerate the podcast, preserving unmodified segments and only processing the changed ones. This approach allows for efficient editing without regenerating the entire podcast from scratch.
 
 ## Roadmap
 
-- [ ] Better PDF and articles content extraction.
+- [x] Better PDF and articles content extraction.
+- [ ] Add interactive ways of using NeuralNoise (Gradio/Colab/etc)
 - [ ] Add local LLM provider. More generic LLM configuration. Leverage AutoGen for this.
 - [ ] Add local TTS provider
 - [ ] Add podcast generation format options: interview, narrative, etc.
-- [ ] Add podcast generation from multiple source files
+- [x] Add podcast generation from multiple source files
 - [ ] Add more agent roles to the studio. For example, a "Content Curator" or "Content Researcher" that uses tools to find and curate content before being analyzed. Or a "Sponsor" agent that adds segways to ads in the podcast script ([à la LTT](https://www.youtube.com/live/EefvOLKoXdg?si=G1714t2jK4ZIvao0&t=5307)).
 - [ ] Add music and sound effects options
 - [ ] Real-time podcast generation with human and AI collaboration (🤔)
