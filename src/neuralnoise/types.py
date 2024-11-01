@@ -1,3 +1,4 @@
+from pathlib import Path
 from textwrap import dedent
 from typing import Literal
 
@@ -56,6 +57,7 @@ class Show(BaseModelDisplay):
 class StudioConfig(BaseModelDisplay):
     show: Show
     speakers: dict[str, Speaker]
+    prompts_dir: Path | None = None
 
     def render_show_details(self) -> str:
         return self.show.render("Show")

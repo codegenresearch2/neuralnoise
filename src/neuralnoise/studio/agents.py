@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+from string import Template
 from typing import Any, Callable
 
 from autogen import (  # type: ignore
@@ -15,12 +16,12 @@ from neuralnoise.studio.hooks import (
     optimize_chat_history_hook,
     save_last_json_message_hook,
 )
-from neuralnoise.studio.utils import load_prompt
 from neuralnoise.types import StudioConfig
+from neuralnoise.utils import package_root
 
 
 def agent(func: Callable) -> Callable:
-    func.is_agent = True
+    func.is_agent = True  # type: ignore
 
     return func
 
@@ -48,11 +49,24 @@ class PodcastStudio:
             if hasattr(getattr(self, attr), "is_agent"):
                 self.agents.append(getattr(self, attr)())
 
+    def load_prompt(self, prompt_name: str, **kwargs: str) -> str:
+        root_folder = self.config.prompts_dir or package_root / "prompts"
+        prompt_path = root_folder / f"{prompt_name}.xml"
+
+        with open(prompt_path, "r") as f:
+            content = f.read()
+
+        if kwargs:
+            template = Template(content)
+            content = template.safe_substitute(kwargs)
+
+        return content
+
     @agent
     def content_analyzer_agent(self) -> AssistantAgent:
         agent = AssistantAgent(
             name="ContentAnalyzerAgent",
-            system_message=load_prompt(
+            system_message=self.load_prompt(
                 "content_analyzer.system", language=self.language
             ),
             llm_config={"config_list": [self.llm_json_mode_config]},
@@ -70,7 +84,7 @@ class PodcastStudio:
     def planner_agent(self) -> AssistantAgent:
         return AssistantAgent(
             name="PlannerAgent",
-            system_message=load_prompt("planner.system", language=self.language),
+            system_message=self.load_prompt("planner.system", language=self.language),
             llm_config={"config_list": [self.llm_default_config]},
         )
 
@@ -78,7 +92,7 @@ class PodcastStudio:
     def script_generator_agent(self) -> AssistantAgent:
         agent = AssistantAgent(
             name="ScriptGeneratorAgent",
-            system_message=load_prompt(
+            system_message=self.load_prompt(
                 "script_generation.system", language=self.language
             ),
             llm_config={"config_list": [self.llm_json_mode_config]},
@@ -102,7 +116,7 @@ class PodcastStudio:
     def editor_agent(self) -> AssistantAgent:
         agent = AssistantAgent(
             name="EditorAgent",
-            system_message=load_prompt("editor.system", language=self.language),
+            system_message=self.load_prompt("editor.system", language=self.language),
             llm_config={"config_list": [self.llm_default_config]},
         )
         agent.register_hook(
@@ -123,7 +137,7 @@ class PodcastStudio:
 
         user_proxy = UserProxyAgent(
             name="UserProxy",
-            system_message=load_prompt("user_proxy.system"),
+            system_message=self.load_prompt("user_proxy.system"),
             human_input_mode="TERMINATE",
             code_execution_config=False,
         )
@@ -137,14 +151,14 @@ class PodcastStudio:
         manager = GroupChatManager(
             groupchat=groupchat,
             llm_config={"config_list": [self.llm_default_config]},
-            system_message=load_prompt("manager.system"),
+            system_message=self.load_prompt("manager.system"),
             is_termination_msg=is_termination_msg,
         )
 
         # Initiate the chat with a clear task description
         user_proxy.initiate_chat(
             manager,
-            message=load_prompt(
+            message=self.load_prompt(
                 "user_proxy.message",
                 content=content,
                 show=self.config.render_show_details(),

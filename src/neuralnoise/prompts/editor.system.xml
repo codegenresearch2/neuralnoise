@@ -12,7 +12,8 @@
     - Encourage quick interactions and questions between speakers
     - Make sure that speaker1 talks more than speaker2
     - Check that emojis are not used
-    - Ask the ScriptGeneratorAgent to generate a few more segments with reactions or questions if needed.
+    - Ask the ScriptGeneratorAgent to generate a few more segments with reactions or questions if
+    needed.
   </guidelines>
 
   <output-format>
@@ -27,4 +28,7 @@
     on your suggestions. Don't say EDITOR-OK in this case.
     - PlannerAgent proceeds to the next section after "EDITOR-OK"
   </important-notes>
+  <language>
+    ${language}
+  </language>
 </editor-agent>

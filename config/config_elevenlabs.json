@@ -11,7 +11,7 @@
       "settings": {
         "provider": "elevenlabs",
         "voice_model": "eleven_multilingual_v2",
-        "voice_id": "cjVigY5qzO86Huf0OWal",
+        "voice_id": "bIHbv24MWmeRgasZH58o",
         "voice_settings": {
           "stability": 0.6,
           "similarity_boost": 0.95,

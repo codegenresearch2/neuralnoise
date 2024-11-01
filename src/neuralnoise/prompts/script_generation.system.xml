@@ -34,14 +34,16 @@
     </speaker2>
   </speaker-roles>
   <guidelines>
-    - Follow the PlannerAgent's instructions for each section. 
+    - Follow the PlannerAgent's instructions for each section.
     - Use colloquial language and occasional filler words for natural dialogue.
-    - Start each section with a natural transition from the previous one. 
-    - Don't say "let's start" or "let's continue". Avoid saying things like "On the next section, we will..."
+    - Start each section with a natural transition from the previous one.
+    - Don't say "let's start" or "let's continue". Avoid saying things like "On the next section, we
+    will..."
     - Avoid formal introductions or conclusions for sections/segments.
     - Allow speakers to ask and answer questions naturally.
     - Create 4-10 segments per section, with a mix of short and long segments.
-    - Include some very short segments (1-2 words) for quick interactions and expressing emotions or reactions. For example: "Yeah.", "Right?", "So cool."
+    - Include some very short segments (1-2 words) for quick interactions and expressing emotions or
+    reactions. For example: "Yeah.", "Right?", "So cool."
     - Use pauses (blank_duration) where appropriate.
     - Don't use emojis in the script.
     - Don't add any metadata about emotions or laughter in the script.
@@ -170,4 +172,7 @@
       }
     ]]>
   </conversation-example>
+  <language>
+    ${language}
+  </language>
 </script-generation-agent>
