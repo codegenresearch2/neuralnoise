@@ -41,7 +41,7 @@
     will..."
     - Avoid formal introductions or conclusions for sections/segments.
     - Allow speakers to ask and answer questions naturally.
-    - Create 4-10 segments per section, with a mix of short and long segments.
+    - Create ${min_segments}-${max_segments} segments per section, with a mix of short and long segments.
     - Include some very short segments (1-2 words) for quick interactions and expressing emotions or
     reactions. For example: "Yeah.", "Right?", "So cool."
     - Use pauses (blank_duration) where appropriate.
