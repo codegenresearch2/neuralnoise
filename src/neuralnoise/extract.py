@@ -1,12 +1,13 @@
+import asyncio
 import logging
 import os
-from asyncio import run
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from textwrap import dedent
-from typing import Iterator
+from typing import AsyncIterator, Iterator
 
 import requests  # type: ignore
+from crawl4ai import AsyncWebCrawler, CrawlResult
 from langchain_community.document_loaders import (
     BSHTMLLoader,
     PyMuPDFLoader,
@@ -28,9 +29,7 @@ class Crawl4AILoader(BaseLoader):
         self.url = url
         self.css_selector = css_selector
 
-    async def crawl(self, url: str, css_selector: str | None = None):
-        from crawl4ai import AsyncWebCrawler
-
+    async def acrawl(self, url: str, css_selector: str | None = None):
         async with AsyncWebCrawler(verbose=True) as crawler:
             result = await crawler.arun(
                 url,
@@ -39,15 +38,10 @@ class Crawl4AILoader(BaseLoader):
 
         return result
 
-    def lazy_load(self) -> Iterator[Document]:
-        """Load HTML document into document objects."""
-        # First attempt loading with CSS selector if provided
-        result = run(self.crawl(self.url, self.css_selector))
+    def crawl(self, url: str, css_selector: str | None = None):
+        return asyncio.run(self.acrawl(url, css_selector))
 
-        # Second attempt loading without CSS selector if first attempt failed
-        if result.markdown is None and self.css_selector is not None:
-            result = run(self.crawl(self.url))
-
+    def _process_result(self, result: CrawlResult):
         if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
 
@@ -56,7 +50,29 @@ class Crawl4AILoader(BaseLoader):
             "source": self.url,
         }
 
-        yield Document(page_content=result.markdown, metadata=metadata)
+        return Document(page_content=result.markdown, metadata=metadata)
+
+    def lazy_load(self) -> Iterator[Document]:
+        """Load HTML document into document objects."""
+        # First attempt loading with CSS selector if provided
+        result = self.crawl(self.url, self.css_selector)
+
+        # Second attempt loading without CSS selector if first attempt failed
+        if result.markdown is None and self.css_selector is not None:
+            result = self.crawl(self.url)
+
+        yield self._process_result(result)
+
+    async def alazy_load(self) -> AsyncIterator[Document]:
+        """Load HTML document into document objects."""
+        # First attempt loading with CSS selector if provided
+        result = await self.acrawl(self.url, self.css_selector)
+
+        # Second attempt loading without CSS selector if first attempt failed
+        if result.markdown is None and self.css_selector is not None:
+            result = self.crawl(self.url)
+
+        yield self._process_result(result)
 
 
 def get_best_loader(extract_from: str | Path) -> BaseLoader:
@@ -76,17 +92,16 @@ def get_best_loader(extract_from: str | Path) -> BaseLoader:
                 except Exception:
                     logger.warning(
                         dedent("""
-                        Crawl4AI web loader is not available but it's recommended for
-                        better results. Install `pip install neuralnoise[crawl4ai]` to
-                        use it, or `pip install crawl4ai` to install it.
+                        Crawl4AI web loader didn't work. However, it's recommended for
+                        better results. Install it with `pip install crawl4ai`.
                                    
                         Once installed, make sure to follow the instructions in their
                         repo: https://github.com/unclecode/crawl4ai
                                    
-                        For example, you should run `playwright install` to install
-                        utils for the crawlers to work.
+                        For example, you might need to run `playwright install` to
+                        install utils for the crawlers to work.
 
-                        Using the default web loader now.
+                        Now I will use the default web loader using BeautifulSoup.
                     """)
                     )
 
@@ -104,27 +119,47 @@ def get_best_loader(extract_from: str | Path) -> BaseLoader:
             raise ValueError("Invalid input")
 
 
-def extract_content_from_source(extract_from: str | Path) -> str:
+async def _extract_single_source(
+    extract_from: str | Path, use_async: bool = True
+) -> str:
+    """Extract content from a single source with unified async/sync handling."""
     logger.info(f"Extracting content from {extract_from}")
     loader = get_best_loader(extract_from)
-    docs = loader.load()
-    content = ""
 
+    docs = await loader.aload() if use_async else loader.load()
+
+    content_parts = []
     for doc in docs:
         if doc.metadata.get("title"):
-            content += f"\n\n# {doc.metadata['title']}\n\n"
-        content += doc.page_content.strip()
+            content_parts.append(f"\n\n# {doc.metadata['title']}\n\n")
+        content_parts.append(doc.page_content.strip())
 
-    return content
+    return "".join(content_parts)
+
+
+async def _extract_multiple_sources(
+    sources: list[str | Path] | list[str] | list[Path], use_async: bool = True
+) -> str:
+    """Extract content from multiple sources and wrap them in document tags."""
+    contents = await asyncio.gather(
+        *[_extract_single_source(source, use_async=use_async) for source in sources]
+    )
+
+    return "\n\n".join(f"<document>\n{content}\n</document>" for content in contents)
+
+
+# Public API functions
+async def aextract_content(
+    extract_from: str | Path | list[str] | list[Path] | list[str | Path],
+) -> str:
+    """Async version of content extraction."""
+    sources = [extract_from] if not isinstance(extract_from, list) else extract_from
+    return await _extract_multiple_sources(sources, use_async=True)
 
 
 def extract_content(
     extract_from: str | Path | list[str] | list[Path] | list[str | Path],
 ) -> str:
-    if not isinstance(extract_from, list):
-        extract_from = [extract_from]
-
-    return "\n\n".join(
-        f"<document>\n{extract_content_from_source(item)}\n</document>"
-        for item in extract_from
-    )
+    """Sync version of content extraction."""
+    sources = [extract_from] if not isinstance(extract_from, list) else extract_from
+    return asyncio.run(_extract_multiple_sources(sources, use_async=False))

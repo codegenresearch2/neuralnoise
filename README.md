@@ -1,6 +1,8 @@
 # NeuralNoise: The AI Podcast Studio
 
 <p align="center">
+    <a href="https://colab.research.google.com/drive/1-1aaRFoxJL03oUn7IB0DcfxFeWq7Vw5n?usp=sharing" alt="Open in Google Colab">
+        <img src="https://colab.research.google.com/assets/colab-badge.svg" /></a>
     <a href="https://github.com/badges/shields/pulse" alt="Activity">
         <img src="https://img.shields.io/github/commit-activity/m/leopiney/neuralnoise" /></a>
     <a href="https://pypi.python.org/pypi/neuralnoise" alt="PyPI - Latest version">
