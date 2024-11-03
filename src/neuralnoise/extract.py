@@ -4,10 +4,9 @@ import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from textwrap import dedent
-from typing import AsyncIterator, Iterator
+from typing import AsyncIterator
 
 import requests  # type: ignore
-from crawl4ai import AsyncWebCrawler, CrawlResult
 from langchain_community.document_loaders import (
     BSHTMLLoader,
     PyMuPDFLoader,
@@ -30,6 +29,8 @@ class Crawl4AILoader(BaseLoader):
         self.css_selector = css_selector
 
     async def crawl(self, url: str, css_selector: str | None = None):
+        from crawl4ai import AsyncWebCrawler
+
         async with AsyncWebCrawler(verbose=True) as crawler:
             result = await crawler.arun(
                 url,
@@ -38,11 +39,11 @@ class Crawl4AILoader(BaseLoader):
 
         return result
 
-    def _process_result(self, result: CrawlResult):
+    def _process_result(self, result):
         if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
 
-        metadata: dict[str, str | None] = {
+        metadata: dict[str, str | None] = {  # type: ignore
             **(result.metadata or {}),
             "source": self.url,
         }
