@@ -29,7 +29,7 @@ class Crawl4AILoader(BaseLoader):
         self.url = url
         self.css_selector = css_selector
 
-    async def acrawl(self, url: str, css_selector: str | None = None):
+    async def crawl(self, url: str, css_selector: str | None = None):
         async with AsyncWebCrawler(verbose=True) as crawler:
             result = await crawler.arun(
                 url,
@@ -37,9 +37,6 @@ class Crawl4AILoader(BaseLoader):
             )
 
         return result
-
-    def crawl(self, url: str, css_selector: str | None = None):
-        return asyncio.run(self.acrawl(url, css_selector))
 
     def _process_result(self, result: CrawlResult):
         if result.markdown is None:
@@ -52,25 +49,14 @@ class Crawl4AILoader(BaseLoader):
 
         return Document(page_content=result.markdown, metadata=metadata)
 
-    def lazy_load(self) -> Iterator[Document]:
-        """Load HTML document into document objects."""
-        # First attempt loading with CSS selector if provided
-        result = self.crawl(self.url, self.css_selector)
-
-        # Second attempt loading without CSS selector if first attempt failed
-        if result.markdown is None and self.css_selector is not None:
-            result = self.crawl(self.url)
-
-        yield self._process_result(result)
-
     async def alazy_load(self) -> AsyncIterator[Document]:
         """Load HTML document into document objects."""
         # First attempt loading with CSS selector if provided
-        result = await self.acrawl(self.url, self.css_selector)
+        result = await self.crawl(self.url, self.css_selector)
 
         # Second attempt loading without CSS selector if first attempt failed
         if result.markdown is None and self.css_selector is not None:
-            result = self.crawl(self.url)
+            result = await self.crawl(self.url)
 
         yield self._process_result(result)
 
@@ -126,7 +112,11 @@ async def _extract_single_source(
     logger.info(f"Extracting content from {extract_from}")
     loader = get_best_loader(extract_from)
 
-    docs = await loader.aload() if use_async else loader.load()
+    docs = (
+        await loader.aload()
+        if use_async or isinstance(loader, Crawl4AILoader)
+        else loader.load()
+    )
 
     content_parts = []
     for doc in docs:
