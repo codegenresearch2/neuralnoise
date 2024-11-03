@@ -9,7 +9,7 @@ from elevenlabs.client import ElevenLabs
 from openai import APIError, OpenAI, RateLimitError
 from pydub import AudioSegment
 
-from neuralnoise.types import Speaker
+from neuralnoise.models import Speaker
 
 
 def generate_audio_segment_elevenlabs(

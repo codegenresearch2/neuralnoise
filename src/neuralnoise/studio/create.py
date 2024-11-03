@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from neuralnoise.studio import PodcastStudio
 from neuralnoise.tts import generate_audio_segment
-from neuralnoise.types import StudioConfig
+from neuralnoise.models import StudioConfig
 
 
 logger = logging.getLogger(__name__)

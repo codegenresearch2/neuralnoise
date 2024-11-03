@@ -16,7 +16,7 @@ from neuralnoise.studio.hooks import (
     optimize_chat_history_hook,
     save_last_json_message_hook,
 )
-from neuralnoise.types import StudioConfig
+from neuralnoise.models import StudioConfig
 from neuralnoise.utils import package_root
 
 
