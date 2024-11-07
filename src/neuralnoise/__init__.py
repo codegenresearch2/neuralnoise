@@ -1,4 +1,9 @@
-from neuralnoise.extract import extract_content, aextract_content
-from neuralnoise.studio import create_podcast_episode
+from neuralnoise.extract import aextract_content, extract_content
+from neuralnoise.studio import PodcastStudio, generate_podcast_episode
 
-__all__ = ["create_podcast_episode", "extract_content", "aextract_content"]
+__all__ = [
+    "aextract_content",
+    "extract_content",
+    "generate_podcast_episode",
+    "PodcastStudio",
+]

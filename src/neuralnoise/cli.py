@@ -9,7 +9,7 @@ from pydub.exceptions import CouldntDecodeError
 from tabulate import tabulate
 
 from neuralnoise.extract import extract_content
-from neuralnoise.studio import create_podcast_episode
+from neuralnoise.studio import generate_podcast_episode
 from neuralnoise.utils import package_root
 
 app = typer.Typer()
@@ -65,7 +65,7 @@ def generate(
             f.write(content)
 
     typer.secho(f"Generating podcast episode {name}", fg=typer.colors.GREEN)
-    create_podcast_episode(
+    generate_podcast_episode(
         name,
         content,
         config_path=config,

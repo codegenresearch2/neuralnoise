@@ -76,7 +76,6 @@ def generate_audio_segment(
     overwrite: bool = False,
 ) -> AudioSegment:
     if not output_path.exists() or overwrite:
-        print(f"Generating {output_path} with content: {content[:80]}...")
         tts_function = TTS_PROVIDERS[speaker.settings.provider]
         audio = tts_function(content, speaker)
 

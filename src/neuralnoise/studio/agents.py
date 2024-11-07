@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -11,12 +12,16 @@ from autogen import (  # type: ignore
     GroupChatManager,
     UserProxyAgent,
 )
+from pydub import AudioSegment
+from pydub.effects import normalize
+from tqdm.auto import tqdm
 
+from neuralnoise.models import StudioConfig
 from neuralnoise.studio.hooks import (
     optimize_chat_history_hook,
     save_last_json_message_hook,
 )
-from neuralnoise.models import StudioConfig
+from neuralnoise.tts import generate_audio_segment
 from neuralnoise.utils import package_root
 
 
@@ -184,3 +189,49 @@ class PodcastStudio:
         }
 
         return final_script
+
+    def generate_podcast_from_script(self, script: dict[str, Any]) -> AudioSegment:
+        script_segments = []
+
+        temp_dir = self.work_dir / "segments"
+        temp_dir.mkdir(exist_ok=True)
+
+        sections_ids = list(sorted(script["sections"].keys()))
+        script_segments = [
+            (section_id, segment)
+            for section_id in sections_ids
+            for segment in script["sections"][section_id]["segments"]
+        ]
+
+        audio_segments = []
+
+        for section_id, segment in tqdm(
+            script_segments,
+            desc="Generating audio segments",
+        ):
+            speaker = self.config.speakers[segment["speaker"]]
+            content = segment["content"]
+
+            content = content.replace("¡", "").replace("¿", "")
+
+            content_hash = hashlib.md5(content.encode("utf-8")).hexdigest()
+            segment_path = temp_dir / f"{section_id}_{segment['id']}_{content_hash}.mp3"
+
+            audio_segment = generate_audio_segment(
+                content, speaker, output_path=segment_path
+            )
+
+            audio_segments.append(audio_segment)
+
+            if blank_duration := segment.get("blank_duration"):
+                silence = AudioSegment.silent(duration=blank_duration * 1000)
+                audio_segments.append(silence)
+
+        podcast = AudioSegment.empty()
+
+        for chunk in audio_segments:
+            podcast += chunk
+
+        podcast = normalize(podcast)
+
+        return podcast
