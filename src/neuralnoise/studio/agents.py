@@ -16,7 +16,7 @@ from pydub import AudioSegment
 from pydub.effects import normalize
 from tqdm.auto import tqdm
 
-from neuralnoise.models import StudioConfig
+from neuralnoise.models import ContentAnalysis, StudioConfig, PodcastScript
 from neuralnoise.studio.hooks import (
     optimize_chat_history_hook,
     save_last_json_message_hook,
@@ -39,12 +39,6 @@ class PodcastStudio:
         self.max_round = max_round
 
         self.llm_default_config = {
-            "model": "gpt-4o",
-            "api_key": os.environ["OPENAI_API_KEY"],
-        }
-
-        self.llm_json_mode_config = {
-            "response_format": {"type": "json_object"},
             "model": "gpt-4o",
             "api_key": os.environ["OPENAI_API_KEY"],
         }
@@ -74,7 +68,14 @@ class PodcastStudio:
             system_message=self.load_prompt(
                 "content_analyzer.system", language=self.language
             ),
-            llm_config={"config_list": [self.llm_json_mode_config]},
+            llm_config={
+                "config_list": [
+                    {
+                        **self.llm_default_config,
+                        "response_format": ContentAnalysis,
+                    }
+                ]
+            },
         )
         agent.register_hook(
             hookable_method="process_message_before_send",
@@ -103,7 +104,14 @@ class PodcastStudio:
                 min_segments=str(self.config.show.min_segments),
                 max_segments=str(self.config.show.max_segments),
             ),
-            llm_config={"config_list": [self.llm_json_mode_config]},
+            llm_config={
+                "config_list": [
+                    {
+                        **self.llm_default_config,
+                        "response_format": PodcastScript,
+                    }
+                ]
+            },
         )
         agent.register_hook(
             hookable_method="process_message_before_send",

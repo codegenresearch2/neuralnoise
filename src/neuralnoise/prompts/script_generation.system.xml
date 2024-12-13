@@ -19,7 +19,7 @@
             speaker: "speaker1" | "speaker2";
             content: string;
             type: "narrative" | "reaction" | "question";
-            blank_duration?: number; // Time in seconds (0.1, 0.2, 0.3, or 0.5) for silence after speaking
+            blank_duration?: number; // Time in seconds (0.1, 0.2, or 0.5) for silence after speaking
           }>;
         }
       ]]>
@@ -33,21 +33,24 @@
       Supporting role. Asks questions, reacts to speaker1's statements and helps clarify points.
     </speaker2>
   </speaker-roles>
-  <guidelines>
-    - Follow the PlannerAgent's instructions for each section.
-    - Use colloquial language and occasional filler words for natural dialogue.
-    - Start each section with a natural transition from the previous one.
-    - Don't say "let's start" or "let's continue". Avoid saying things like "On the next section, we
-    will..."
-    - Avoid formal introductions or conclusions for sections/segments.
-    - Allow speakers to ask and answer questions naturally.
-    - Create ${min_segments}-${max_segments} segments per section, with a mix of short and long segments.
-    - Include some very short segments (1-2 words) for quick interactions and expressing emotions or
-    reactions. For example: "Yeah.", "Right?", "So cool."
-    - Use pauses (blank_duration) where appropriate.
-    - Don't use emojis in the script.
-    - Don't add any metadata about emotions or laughter in the script.
-  </guidelines>
+  <instructions>
+    <instruction>Follow the PlannerAgent's instructions for each section.</instruction>
+    <instruction>Use colloquial language and occasional filler words for natural dialogue.</instruction>
+    <instruction>Start each section with a natural transition from the previous one.</instruction>
+    <instruction>Don't say "let's start" or "let's continue". Avoid saying things like "On the next
+      section, we will..."</instruction>
+    <instruction>Avoid formal introductions or conclusions for sections/segments.</instruction>
+    <instruction>Allow speakers to ask and answer questions naturally.</instruction>
+    <instruction>Create ${min_segments}-${max_segments} segments per section, with a mix of short
+      and
+      long segments.</instruction>
+    <instruction>Include some very short segments (1-2 words) for quick interactions and expressing
+      emotions or reactions. For example: "Yeah.", "Right?", "So cool."</instruction>
+    <instruction>Use pauses (blank_duration) where appropriate.</instruction>
+    <instruction>Introduce the topics slowly, don't talk about the last topic in the introductions.</instruction>
+    <instruction>Don't use emojis in the script.</instruction>
+    <instruction>Don't add any metadata about emotions or laughter in the script.</instruction>
+  </instructions>
   <conversation-example>
     <![CDATA[ 
       {
@@ -64,7 +67,7 @@
             "speaker": "speaker2",
             "content": "Hold on tight, because...",
             "type": "reaction",
-            "blank_duration": 0.3
+            "blank_duration": 0.2
           },
           {
             "speaker": "speaker1",
@@ -76,19 +79,19 @@
             "speaker": "speaker2",
             "content": "That's right.",
             "type": "reaction",
-            "blank_duration": 0.3
+            "blank_duration": 0.2
           },
           {
             "speaker": "speaker1",
             "content": "And it's awesome. There are a lot of cheating accusations, so this is going to be fun.",
             "type": "narrative",
-            "blank_duration": 0.3
+            "blank_duration": 0.2
           },
           {
             "speaker": "speaker2",
             "content": "It always is, isn't it?",
             "type": "question",
-            "blank_duration": 0.3
+            "blank_duration": 0.2
           },
           {
             "speaker": "speaker1",
@@ -112,19 +115,19 @@
             "speaker": "speaker2",
             "content": "Exactly, it's part of the fun. We're trying to figure out what's going on in real-time.",
             "type": "narrative",
-            "blank_duration": 0.3
+            "blank_duration": 0.2
           },
           {
             "speaker": "speaker1",
             "content": "So the first line that caught my attention was... It seems to say \"look, they taught it from the CBA\". Well, I'm not sure what all that means, but...",
             "type": "narrative",
-            "blank_duration": 0.3
+            "blank_duration": 0.2
           },
           {
             "speaker": "speaker2",
             "content": "Yeah, CBA could be some kind of game or maybe a particular version of the game, a map, or a custom game mode. It gives us a bit more context.",
             "type": "narrative",
-            "blank_duration": 0.3
+            "blank_duration": 0.2
           },
           {
             "speaker": "speaker1",
@@ -136,7 +139,7 @@
             "speaker": "speaker2",
             "content": "Totally. We need more information to be our guide in this chat.",
             "type": "narrative",
-            "blank_duration": 0.3
+            "blank_duration": 0.2
           },
           {
             "speaker": "speaker1",
@@ -154,7 +157,7 @@
             "speaker": "speaker1",
             "content": "Yeah.",
             "type": "reaction",
-            "blank_duration": 0.3
+            "blank_duration": 0.2
           },
           {
             "speaker": "speaker2",

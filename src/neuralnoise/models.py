@@ -2,7 +2,7 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class VoiceSettings(BaseModel):
@@ -70,3 +70,41 @@ class StudioConfig(BaseModelDisplay):
             speaker.render(speaker_id, ["name", "about"])
             for speaker_id, speaker in self.speakers.items()
         )
+
+
+class ContentSegment(BaseModel):
+    topic: str
+    duration: float  # in minutes
+    discussion_points: list[str]
+
+
+class ContentAnalysis(BaseModelDisplay):
+    title: str
+    summary: str
+    key_points: list[str]
+    tone: str
+    target_audience: str
+    potential_segments: list[ContentSegment]
+    controversial_topics: list[str]
+
+
+class ScriptSegment(BaseModel):
+    id: int
+    speaker: Literal["speaker1", "speaker2"]
+    content: str
+    type: Literal["narrative", "reaction", "question"]
+    blank_duration: float | None = Field(
+        None, description="Time in seconds for silence after speaking"
+    )
+
+    @field_validator("blank_duration")
+    def validate_blank_duration(cls, v):
+        if v is not None and v not in (0.1, 0.2, 0.5):
+            raise ValueError("blank_duration must be 0.1, 0.2, or 0.5 seconds")
+        return v
+
+
+class PodcastScript(BaseModel):
+    section_id: int
+    section_title: str
+    segments: list[ScriptSegment]
