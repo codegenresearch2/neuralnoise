@@ -14,6 +14,7 @@ from langchain_community.document_loaders import (  # type: ignore
 )
 from langchain_community.document_loaders.base import BaseLoader
 from langchain_core.documents import Document
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ class Crawl4AILoader(BaseLoader):
         self.url = url
         self.css_selector = css_selector
 
-    async def crawl(self, url: str, css_selector: str | None = None):
+    async def acrawl(self, url: str, css_selector: str | None = None):
         from crawl4ai import AsyncWebCrawler
 
         async with AsyncWebCrawler(verbose=True) as crawler:
@@ -34,12 +35,15 @@ class Crawl4AILoader(BaseLoader):
 
         return result
 
+    def crawl(self, url: str, css_selector: str | None = None):
+        return asyncio.run(self.acrawl(url, css_selector))
+
     def lazy_load(self) -> Iterator[Document]:
         """Load HTML document into document objects."""
-        result = run(self.crawl(self.url, self.css_selector))
+        result = self.crawl(self.url, self.css_selector)
 
         if result.markdown is None and self.css_selector is not None:
-            result = run(self.crawl(self.url))
+            result = self.crawl(self.url)
 
         if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
@@ -50,6 +54,24 @@ class Crawl4AILoader(BaseLoader):
         }
 
         yield Document(page_content=result.markdown, metadata=metadata)
+
+
+async def alazy_load(self) -> Iterator[Document]:
+    """Asynchronous method to load HTML document into document objects."""
+    result = await self.acrawl(self.url, self.css_selector)
+
+    if result.markdown is None and self.css_selector is not None:
+        result = await self.acrawl(self.url)
+
+    if result.markdown is None:
+        raise ValueError(f"No valid content found at {self.url}")
+
+    metadata = {
+        **(result.metadata or {}),
+        "source": self.url,
+    }
+
+    yield Document(page_content=result.markdown, metadata=metadata)
 
 
 def get_best_loader(extract_from: str | Path) -> BaseLoader:
