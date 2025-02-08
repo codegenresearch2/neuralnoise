@@ -20,7 +20,7 @@ def create_podcast_episode_from_script(
     script: dict[str, Any],
     config: StudioConfig,
     output_dir: Path,
-) -> Optional[AudioSegment]:
+) -> AudioSegment:
     script_segments = []
 
     temp_dir = output_dir / "segments"
