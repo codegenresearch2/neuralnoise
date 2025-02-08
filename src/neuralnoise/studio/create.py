@@ -6,7 +6,7 @@ from typing import Any, Literal
 
 from pydub import AudioSegment
 from pydub.effects import normalize
-from tqdm import tqdm
+from rich.progress import track
 
 from neuralnoise.studio import PodcastStudio
 from neuralnoise.tts import generate_audio_segment
@@ -17,7 +17,9 @@ logger = logging.getLogger(__name__)
 
 
 def create_podcast_episode_from_script(
-    script: dict[str, Any], config: StudioConfig, output_dir: Path
+    script: dict[str, Any],
+    config: StudioConfig,
+    output_dir: Path,
 ) -> AudioSegment:
     script_segments = []
 
@@ -33,9 +35,10 @@ def create_podcast_episode_from_script(
 
     audio_segments = []
 
-    for section_id, segment in tqdm(
+    for section_id, segment in track(
         script_segments,
-        desc="Generating audio segments",
+        description="Generating audio segments...",
+        total=len(script_segments),
     ):
         speaker = config.speakers[segment["speaker"]]
         content = segment["content"]
@@ -72,7 +75,7 @@ def create_podcast_episode(
     config_path: str | Path | None = None,
     format: Literal["wav", "mp3", "ogg"] = "wav",
     only_script: bool = False,
-) -> AudioSegment | None:
+):
     # Create output directory
     output_dir = Path("output") / name
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -100,7 +103,7 @@ def create_podcast_episode(
         script_path.write_text(json.dumps(script, ensure_ascii=False))
 
     if only_script:
-        return None
+        return
 
     # Generate audio segments and create the podcast
     logger.info("🎙️  Recording podcast episode")
@@ -112,5 +115,3 @@ def create_podcast_episode(
     podcast.export(podcast_filepath, format=format)
 
     logger.info("✅  Podcast generation complete")
-
-    return podcast
