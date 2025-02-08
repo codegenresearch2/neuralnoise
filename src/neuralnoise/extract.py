@@ -111,8 +111,7 @@ def extract_content_from_source(extract_from: str | Path) -> str:
     return content
 
 
-def extract_content(extract_from: str | Path | list[str] | list[Path] | list[str | Path],)
- -> str:
+def extract_content(extract_from: str | Path | list[str] | list[Path] | list[str | Path],) -> str:
     if not isinstance(extract_from, list):
         extract_from = [extract_from]
 
