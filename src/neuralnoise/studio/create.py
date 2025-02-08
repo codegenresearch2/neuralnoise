@@ -37,7 +37,7 @@ def create_podcast_episode_from_script(
 
     for section_id, segment in tqdm(
         script_segments,
-        desc="Generating audio segments...",
+        desc="Generating audio segments",
     ):
         speaker = config.speakers[segment["speaker"]]
         content = segment["content"]
