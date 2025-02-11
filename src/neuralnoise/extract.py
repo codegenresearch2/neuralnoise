@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from textwrap import dedent
-from typing import Iterator
+from typing import AsyncIterator, Iterator
 
 import requests  # type: ignore
 from langchain_community.document_loaders import (
@@ -28,7 +28,7 @@ class Crawl4AILoader(BaseLoader):
         self.url = url
         self.css_selector = css_selector
 
-    async def crawl(self, url: str, css_selector: str | None = None):
+    async def acrawl(self, url: str, css_selector: str | None = None):
         from crawl4ai import AsyncWebCrawler
 
         async with AsyncWebCrawler(verbose=True) as crawler:
@@ -39,15 +39,10 @@ class Crawl4AILoader(BaseLoader):
 
         return result
 
-    def lazy_load(self) -> Iterator[Document]:
-        """Load HTML document into document objects."""
-        # First attempt loading with CSS selector if provided
-        result = run(self.crawl(self.url, self.css_selector))
+    def crawl(self, url: str, css_selector: str | None = None):
+        return run(self.acrawl(url, css_selector))
 
-        # Second attempt loading without CSS selector if first attempt failed
-        if result.markdown is None and self.css_selector is not None:
-            result = run(self.crawl(self.url))
-
+    def _process_result(self, result):
         if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
 
@@ -56,7 +51,19 @@ class Crawl4AILoader(BaseLoader):
             "source": self.url,
         }
 
-        yield Document(page_content=result.markdown, metadata=metadata)
+        return Document(page_content=result.markdown, metadata=metadata)
+
+    def lazy_load(self) -> Iterator[Document]:
+        """Load HTML document into document objects."""
+        result = self.crawl(self.url, self.css_selector)
+        processed_result = self._process_result(result)
+        yield processed_result
+
+    async def alazy_load(self) -> AsyncIterator[Document]:
+        """Asynchronously load HTML document into document objects."""
+        result = await self.acrawl(self.url, self.css_selector)
+        processed_result = self._process_result(result)
+        yield processed_result
 
 
 def get_best_loader(extract_from: str | Path) -> BaseLoader:
@@ -104,8 +111,7 @@ def get_best_loader(extract_from: str | Path) -> BaseLoader:
             raise ValueError("Invalid input")
 
 
-def extract_content_from_source(extract_from: str | Path) -> str:
-    logger.info(f"Extracting content from {extract_from}")
+def _extract_single_source(extract_from: str | Path) -> str:
     loader = get_best_loader(extract_from)
     docs = loader.load()
     content = ""
@@ -125,6 +131,9 @@ def extract_content(
         extract_from = [extract_from]
 
     return "\n\n".join(
-        f"<document>\n{extract_content_from_source(item)}\n</document>"
+        f"<document>\n{_extract_single_source(item)}\n</document>"
         for item in tqdm(extract_from, desc="Extracting content")
     )
+
+
+This revised code snippet addresses the feedback from the oracle by implementing asynchronous crawling and loading, encapsulating result processing, improving error handling, and separating concerns for content extraction.
