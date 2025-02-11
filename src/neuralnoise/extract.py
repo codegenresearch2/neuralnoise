@@ -53,6 +53,9 @@ class Crawl4AILoader(BaseLoader):
         result = await self.acrawl(self.url, self.css_selector)
 
         if result.markdown is None:
+            result = await self.acrawl(self.url)
+
+        if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
 
         metadata: dict = {
@@ -66,6 +69,9 @@ class Crawl4AILoader(BaseLoader):
         result = self.crawl(self.url, self.css_selector)
 
         if result.markdown is None:
+            result = self.crawl(self.url)
+
+        if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
 
         metadata: dict = {
@@ -75,11 +81,15 @@ class Crawl4AILoader(BaseLoader):
 
         yield Document(page_content=result.markdown, metadata=metadata)
 
-    def _process_result(self, result: CrawlResult) -> str:
-        """Process the crawl result."""
+    def _process_result(self, result: CrawlResult) -> Document:
+        """Process the crawl result and return a Document object."""
         if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
-        return result.markdown
+        metadata = {
+            **(result.metadata or {}),
+            "source": self.url,
+        }
+        return Document(page_content=result.markdown, metadata=metadata)
 
     async def extract_content_from_source(self, extract_from: str | Path) -> str:
         logger.info(f"Extracting content from {extract_from}")
