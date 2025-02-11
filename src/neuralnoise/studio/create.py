@@ -60,12 +60,7 @@ def create_podcast_episode(
     output_dir = Path("output") / name
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    if config_path:
-        logger.info("🔧  Loading configuration from %s", config_path)
-        with open(config_path, "r") as f:
-            config = StudioConfig.model_validate_json(f.read())
-
-    if not config:
+    if config is None:
         raise ValueError("No studio configuration provided")
 
     script_path = output_dir / "script.json"
