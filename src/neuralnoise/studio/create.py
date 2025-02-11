@@ -33,11 +33,8 @@ def create_podcast_episode_from_script(
 
     audio_segments = []
 
-    for section_id, segment in tqdm(
-        script_segments,
-        desc="Generating audio segments",
-        total=len(script_segments),
-    ):
+    total = len(script_segments)
+    for section_id, segment in tqdm(script_segments, desc="Generating audio segments", total=total):
         speaker = config.speakers[segment["speaker"]]
         content = segment["content"]
 
@@ -46,11 +43,14 @@ def create_podcast_episode_from_script(
         content_hash = hashlib.md5(content.encode("utf-8")).hexdigest()
         segment_path = temp_dir / f"{section_id}_{segment['id']}_{content_hash}.mp3"
 
-        audio_segment = generate_audio_segment(
-            content, speaker, output_path=segment_path
-        )
-
-        audio_segments.append(audio_segment)
+        try:
+            audio_segment = generate_audio_segment(
+                content, speaker, output_path=segment_path
+            )
+            audio_segments.append(audio_segment)
+        except Exception as e:
+            logger.error(f"Error generating audio segment for content: {content}. Error: {e}")
+            raise
 
         if blank_duration := segment.get("blank_duration"):
             silence = AudioSegment.silent(duration=blank_duration * 1000)
@@ -105,7 +105,11 @@ def create_podcast_episode(
 
     # Generate audio segments and create the podcast
     logger.info("🎙️  Recording podcast episode")
-    podcast = create_podcast_episode_from_script(script, config, output_dir=output_dir)
+    try:
+        podcast = create_podcast_episode_from_script(script, config, output_dir=output_dir)
+    except Exception as e:
+        logger.error(f"Error creating podcast episode: {e}")
+        raise
 
     # Export podcast
     podcast_filepath = output_dir / f"output.{format}"
