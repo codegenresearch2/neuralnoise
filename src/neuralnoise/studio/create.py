@@ -2,7 +2,7 @@ import hashlib
 import json
 import logging
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Optional
 
 from pydub import AudioSegment
 from pydub.effects import normalize
@@ -30,11 +30,7 @@ def create_podcast_episode_from_script(
 
     audio_segments = []
 
-    for section_id, segment in tqdm(
-        script_segments,
-        desc="Generating audio segments",
-        total=len(script_segments),
-    ):
+    for section_id, segment in tqdm(script_segments, desc="Generating audio segments"):
         speaker = config.speakers[segment["speaker"]]
         content = segment["content"]
         content = content.replace("¡", "").replace("¿", "")
@@ -60,7 +56,7 @@ def create_podcast_episode(
     config_path: str | Path | None = None,
     format: Literal["wav", "mp3", "ogg"] = "wav",
     only_script: bool = False,
-) -> AudioSegment | None:
+) -> Optional[AudioSegment]:
     output_dir = Path("output") / name
     output_dir.mkdir(parents=True, exist_ok=True)
 
