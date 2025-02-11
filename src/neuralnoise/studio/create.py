@@ -35,7 +35,7 @@ def create_podcast_episode_from_script(
 
     for section_id, segment in tqdm(
         script_segments,
-        desc="Generating audio segments...",
+        desc="Generating audio segments",
         total=len(script_segments),
     ):
         speaker = config.speakers[segment["speaker"]]
@@ -46,13 +46,10 @@ def create_podcast_episode_from_script(
         content_hash = hashlib.md5(content.encode("utf-8")).hexdigest()
         segment_path = temp_dir / f"{section_id}_{segment['id']}_{content_hash}.mp3"
 
-        try:
-            audio_segment = generate_audio_segment(
-                content, speaker, output_path=segment_path
-            )
-            audio_segments.append(audio_segment)
-        except Exception as e:
-            logger.error(f"Error generating audio segment for content: {content}. Error: {e}")
+        audio_segment = generate_audio_segment(
+            content, speaker, output_path=segment_path
+        )
+        audio_segments.append(audio_segment)
 
         if blank_duration := segment.get("blank_duration"):
             silence = AudioSegment.silent(duration=blank_duration * 1000)
