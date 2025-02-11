@@ -1,6 +1,9 @@
 name: Build and Publish Package
 
 on:
+  push:
+    branches:
+      - '**'
   release:
     types: [created]
 
@@ -21,12 +24,4 @@ jobs:
       - name: Install dependencies
         run: |
           uv sync --only-dev --frozen
-          uv run pytest
-
-      - name: Build package
-        run: |
-          uv build --no-sources
-
-      - name: Publish package
-        run: |
-          uv publish --token ${{ secrets.PYPI_TOKEN }}
+          uv run pytest -vv
