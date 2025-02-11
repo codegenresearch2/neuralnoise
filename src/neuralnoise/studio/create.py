@@ -17,23 +17,19 @@ logger = logging.getLogger(__name__)
 def create_podcast_episode_from_script(
     script: dict[str, Any], config: StudioConfig, output_dir: Path
 ) -> AudioSegment:
-    script_segments = []
-    temp_dir = output_dir / "segments"
-    temp_dir.mkdir(exist_ok=True)
-
-    sections_ids = list(sorted(script["sections"].keys()))
-    for section_id in sections_ids:
-        for segment in script["sections"][section_id]["segments"]:
-            script_segments.append((section_id, segment))
+    script_segments = [
+        (section_id, segment)
+        for section_id in sorted(script["sections"].keys())
+        for segment in script["sections"][section_id]["segments"]
+    ]
 
     audio_segments = []
 
     for section_id, segment in tqdm(script_segments, desc="Generating audio segments"):
         speaker = config.speakers[segment["speaker"]]
-        content = segment["content"]
-        content = content.replace("¡", "").replace("¿", "")
+        content = segment["content"].replace("¡", "").replace("¿", "")
         content_hash = hashlib.md5(content.encode("utf-8")).hexdigest()
-        segment_path = temp_dir / f"{section_id}_{segment['id']}_{content_hash}.mp3"
+        segment_path = output_dir / "segments" / f"{section_id}_{segment['id']}_{content_hash}.mp3"
         audio_segment = generate_audio_segment(content, speaker, output_path=segment_path)
         audio_segments.append(audio_segment)
         if blank_duration := segment.get("blank_duration"):
