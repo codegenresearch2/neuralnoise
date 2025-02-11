@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from textwrap import dedent
-from typing import Iterator, Type
+from typing import Iterator
 
 import requests  # type: ignore
 from langchain_community.document_loaders import (
@@ -50,7 +50,7 @@ class Crawl4AILoader(BaseLoader):
 
     async def alazy_load(self) -> Iterator[Document]:
         """Load HTML document into document objects."""
-        result = self.crawl(self.url, self.css_selector)
+        result = await self.acrawl(self.url, self.css_selector)
 
         if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
@@ -81,7 +81,7 @@ class Crawl4AILoader(BaseLoader):
             raise ValueError(f"No valid content found at {self.url}")
         return result.markdown
 
-    def extract_content_from_source(self, extract_from: str | Path) -> str:
+    async def extract_content_from_source(self, extract_from: str | Path) -> str:
         logger.info(f"Extracting content from {extract_from}")
         loader = get_best_loader(extract_from)
         docs = loader.load()
