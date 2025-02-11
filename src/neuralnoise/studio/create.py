@@ -22,11 +22,9 @@ def create_podcast_episode_from_script(
     temp_dir.mkdir(exist_ok=True)
 
     sections_ids = list(sorted(script["sections"].keys()))
-    script_segments = [
-        (section_id, segment)
-        for section_id in sections_ids
-        for segment in script["sections"][section_id]["segments"]
-    ]
+    for section_id in sections_ids:
+        for segment in script["sections"][section_id]["segments"]:
+            script_segments.append((section_id, segment))
 
     audio_segments = []
 
