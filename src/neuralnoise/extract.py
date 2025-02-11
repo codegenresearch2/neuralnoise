@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from textwrap import dedent
-from typing import Iterator
+from typing import Iterator, Type
 
 import requests  # type: ignore
 from langchain_community.document_loaders import (
@@ -19,6 +19,12 @@ import asyncio
 logger = logging.getLogger(__name__)
 
 
+class CrawlResult:
+    def __init__(self, markdown: str, metadata: dict):
+        self.markdown = markdown
+        self.metadata = metadata
+
+
 class Crawl4AILoader(BaseLoader):
     def __init__(
         self,
@@ -28,7 +34,7 @@ class Crawl4AILoader(BaseLoader):
         self.url = url
         self.css_selector = css_selector
 
-    async def crawl(self, url: str, css_selector: str | None = None):
+    async def acrawl(self, url: str, css_selector: str | None = None) -> CrawlResult:
         from crawl4ai import AsyncWebCrawler
 
         async with AsyncWebCrawler(verbose=True) as crawler:
@@ -37,28 +43,39 @@ class Crawl4AILoader(BaseLoader):
                 css_selector=css_selector or "",
             )
 
-        return result
+        return CrawlResult(result.markdown, result.metadata)
 
-    async def lazy_load(self) -> Iterator[Document]:
+    def crawl(self, url: str, css_selector: str | None = None) -> CrawlResult:
+        return asyncio.run(self.acrawl(url, css_selector))
+
+    async def alazy_load(self) -> Iterator[Document]:
         """Load HTML document into document objects."""
-        # First attempt loading with CSS selector if provided
-        result = await self.crawl(self.url, self.css_selector)
-
-        # Second attempt loading without CSS selector if first attempt failed
-        if result.markdown is None and self.css_selector is not None:
-            result = await self.crawl(self.url)
+        result = self.crawl(self.url, self.css_selector)
 
         if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
 
-        metadata: dict[str, str | None] = {
+        metadata: dict = {
             **(result.metadata or {}),
             "source": self.url,
         }
 
         yield Document(page_content=result.markdown, metadata=metadata)
 
-    def _process_result(self, result):
+    def lazy_load(self) -> Iterator[Document]:
+        result = self.crawl(self.url, self.css_selector)
+
+        if result.markdown is None:
+            raise ValueError(f"No valid content found at {self.url}")
+
+        metadata: dict = {
+            **(result.metadata or {}),
+            "source": self.url,
+        }
+
+        yield Document(page_content=result.markdown, metadata=metadata)
+
+    def _process_result(self, result: CrawlResult) -> str:
         """Process the crawl result."""
         if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
