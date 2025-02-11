@@ -19,6 +19,12 @@ import asyncio
 logger = logging.getLogger(__name__)
 
 
+class CrawlResult:
+    def __init__(self, markdown: str, metadata: dict):
+        self.markdown = markdown
+        self.metadata = metadata
+
+
 class Crawl4AILoader(BaseLoader):
     def __init__(
         self,
@@ -28,7 +34,7 @@ class Crawl4AILoader(BaseLoader):
         self.url = url
         self.css_selector = css_selector
 
-    async def acrawl(self, url: str, css_selector: str | None = None) -> str:
+    async def acrawl(self, url: str, css_selector: str | None = None) -> CrawlResult:
         from crawl4ai import AsyncWebCrawler
 
         async with AsyncWebCrawler(verbose=True) as crawler:
@@ -37,44 +43,44 @@ class Crawl4AILoader(BaseLoader):
                 css_selector=css_selector or "",
             )
 
-        return result.markdown
+        return CrawlResult(result.markdown, result.metadata)
 
-    def crawl(self, url: str, css_selector: str | None = None) -> str:
+    def crawl(self, url: str, css_selector: str | None = None) -> CrawlResult:
         return asyncio.run(self.acrawl(url, css_selector))
 
     async def alazy_load(self) -> Iterator[Document]:
         """Load HTML document into document objects."""
         result = await self.acrawl(self.url, self.css_selector)
 
-        if result is None:
+        if result.markdown is None:
             result = await self.acrawl(self.url)
 
-        if result is None:
+        if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
 
-        metadata = {"source": self.url}
+        metadata = {**result.metadata, "source": self.url}
 
-        yield Document(page_content=result, metadata=metadata)
+        yield Document(page_content=result.markdown, metadata=metadata)
 
     def lazy_load(self) -> Iterator[Document]:
         result = self.crawl(self.url, self.css_selector)
 
-        if result is None:
+        if result.markdown is None:
             result = self.crawl(self.url)
 
-        if result is None:
+        if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
 
-        metadata = {"source": self.url}
+        metadata = {**result.metadata, "source": self.url}
 
-        yield Document(page_content=result, metadata=metadata)
+        yield Document(page_content=result.markdown, metadata=metadata)
 
-    def _process_result(self, result: str) -> Document:
+    def _process_result(self, result: CrawlResult) -> Document:
         """Process the crawl result and return a Document object."""
-        if result is None:
+        if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
-        metadata = {"source": self.url}
-        return Document(page_content=result, metadata=metadata)
+        metadata = {**result.metadata, "source": self.url}
+        return Document(page_content=result.markdown, metadata=metadata)
 
     async def extract_content_from_source(self, extract_from: str | Path) -> str:
         logger.info(f"Extracting content from {extract_from}")
