@@ -2,7 +2,7 @@ import hashlib
 import json
 import logging
 from pathlib import Path
-from typing import Any, Literal, Optional
+from typing import Any, Literal, Optional, Union
 
 from pydub import AudioSegment
 from pydub.effects import normalize
@@ -52,8 +52,8 @@ def create_podcast_episode_from_script(
 def create_podcast_episode(
     name: str,
     content: str,
-    config: StudioConfig | None = None,
-    config_path: str | Path | None = None,
+    config: Optional[StudioConfig] = None,
+    config_path: Optional[Union[str, Path]] = None,
     format: Literal["wav", "mp3", "ogg"] = "wav",
     only_script: bool = False,
 ) -> Optional[AudioSegment]:
