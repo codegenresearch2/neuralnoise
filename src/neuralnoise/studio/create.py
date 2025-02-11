@@ -35,7 +35,7 @@ def create_podcast_episode_from_script(
 
     for section_id, segment in tqdm(
         script_segments,
-        desc="Generating audio segments...",
+        desc="Generating audio segments",
         total=len(script_segments),
     ):
         speaker = config.speakers[segment["speaker"]]
@@ -73,7 +73,7 @@ def create_podcast_episode(
     config_path: str | Path | None = None,
     format: Literal["wav", "mp3", "ogg"] = "wav",
     only_script: bool = False,
-) -> Optional[AudioSegment]:
+) -> AudioSegment | None:
     # Create output directory
     output_dir = Path("output") / name
     output_dir.mkdir(parents=True, exist_ok=True)
