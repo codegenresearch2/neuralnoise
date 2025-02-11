@@ -29,7 +29,7 @@ class Crawl4AILoader(BaseLoader):
         self.url = url
         self.css_selector = css_selector
 
-    async def crawl(self, url: str, css_selector: str | None = None):
+    async def acrawl(self, url: str, css_selector: str | None = None):
         from crawl4ai import AsyncWebCrawler
 
         async with AsyncWebCrawler(verbose=True) as crawler:
@@ -40,21 +40,27 @@ class Crawl4AILoader(BaseLoader):
 
         return result
 
+    def crawl(self, url: str, css_selector: str | None = None):
+        return asyncio.run(self.acrawl(url, css_selector))
+
+    def _process_result(self, result):
+        if result.markdown is None:
+            raise ValueError(f"No valid content found at {self.url}")
+
+        metadata: dict[str, str | None] = {
+            **(result.metadata or {}),
+            "source": self.url,
+        }
+
+        return Document(page_content=result.markdown, metadata=metadata)
+
+    async def alazy_load(self) -> Iterator[Document]:
+        result = self.crawl(self.url, self.css_selector)
+        processed_result = self._process_result(result)
+        yield processed_result
+
     def lazy_load(self) -> Iterator[Document]:
-        """Load HTML document into document objects."""
-        async def load_async():
-            result = await self.crawl(self.url, self.css_selector)
-            if result.markdown is None:
-                raise ValueError(f"No valid content found at {self.url}")
-
-            metadata: dict[str, str | None] = {
-                **(result.metadata or {}),
-                "source": self.url,
-            }
-
-            yield Document(page_content=result.markdown, metadata=metadata)
-
-        return asyncio.run(load_async())
+        return asyncio.run(self.alazy_load())
 
 
 def get_best_loader(extract_from: str | Path) -> BaseLoader:
