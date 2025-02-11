@@ -15,6 +15,7 @@ from langchain_community.document_loaders import (
 from langchain_community.document_loaders.base import BaseLoader
 from langchain_core.documents import Document
 from tqdm import tqdm  # type: ignore
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -41,22 +42,19 @@ class Crawl4AILoader(BaseLoader):
 
     def lazy_load(self) -> Iterator[Document]:
         """Load HTML document into document objects."""
-        # First attempt loading with CSS selector if provided
-        result = run(self.crawl(self.url, self.css_selector))
+        async def load_async():
+            result = await self.crawl(self.url, self.css_selector)
+            if result.markdown is None:
+                raise ValueError(f"No valid content found at {self.url}")
 
-        # Second attempt loading without CSS selector if first attempt failed
-        if result.markdown is None and self.css_selector is not None:
-            result = run(self.crawl(self.url))
+            metadata: dict[str, str | None] = {
+                **(result.metadata or {}),
+                "source": self.url,
+            }
 
-        if result.markdown is None:
-            raise ValueError(f"No valid content found at {self.url}")
+            yield Document(page_content=result.markdown, metadata=metadata)
 
-        metadata: dict[str, str | None] = {
-            **(result.metadata or {}),
-            "source": self.url,
-        }
-
-        yield Document(page_content=result.markdown, metadata=metadata)
+        return asyncio.run(load_async())
 
 
 def get_best_loader(extract_from: str | Path) -> BaseLoader:
