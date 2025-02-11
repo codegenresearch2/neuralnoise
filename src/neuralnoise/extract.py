@@ -16,6 +16,7 @@ from langchain_community.document_loaders.base import BaseLoader
 from langchain_core.documents import Document
 from tqdm import tqdm  # type: ignore
 import asyncio
+from crawl4ai import AsyncWebCrawler, CrawlResult  # Import CrawlResult
 
 logger = logging.getLogger(__name__)
 
@@ -29,21 +30,18 @@ class Crawl4AILoader(BaseLoader):
         self.url = url
         self.css_selector = css_selector
 
-    async def acrawl(self, url: str, css_selector: str | None = None):
-        from crawl4ai import AsyncWebCrawler
-
+    async def acrawl(self, url: str, css_selector: str | None = None) -> CrawlResult:
         async with AsyncWebCrawler(verbose=True) as crawler:
             result = await crawler.arun(
                 url,
                 css_selector=css_selector or "",
             )
-
         return result
 
-    def crawl(self, url: str, css_selector: str | None = None):
+    def crawl(self, url: str, css_selector: str | None = None) -> CrawlResult:
         return asyncio.run(self.acrawl(url, css_selector))
 
-    def _process_result(self, result):
+    def _process_result(self, result: CrawlResult) -> Document:
         if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
 
@@ -55,12 +53,32 @@ class Crawl4AILoader(BaseLoader):
         return Document(page_content=result.markdown, metadata=metadata)
 
     async def alazy_load(self) -> Iterator[Document]:
-        result = self.crawl(self.url, self.css_selector)
-        processed_result = self._process_result(result)
-        yield processed_result
+        try:
+            result = self.crawl(self.url, self.css_selector)
+            processed_result = self._process_result(result)
+            yield processed_result
+        except Exception as e:
+            logger.warning(f"Failed to load content: {e}. Using default loader.")
+            yield from self._default_lazy_load()
 
     def lazy_load(self) -> Iterator[Document]:
         return asyncio.run(self.alazy_load())
+
+    def _default_lazy_load(self) -> Iterator[Document]:
+        html_content = requests.get(self.url).text
+
+        with NamedTemporaryFile(
+            delete=False, mode="w", suffix=".html"
+        ) as f:
+            f.write(html_content)
+
+        loader = BSHTMLLoader(file_path=f.name)
+        f.close()
+        docs = loader.load()
+        os.remove(f.name)
+
+        for doc in docs:
+            yield doc
 
 
 def get_best_loader(extract_from: str | Path) -> BaseLoader:
@@ -77,9 +95,9 @@ def get_best_loader(extract_from: str | Path) -> BaseLoader:
             else:
                 try:
                     return Crawl4AILoader(url=extract_from, css_selector="article")
-                except Exception:
+                except Exception as e:
                     logger.warning(
-                        dedent("""
+                        dedent(f"""
                         Crawl4AI web loader is not available but it's recommended for
                         better results. Install `pip install neuralnoise[crawl4ai]` to
                         use it, or `pip install crawl4ai` to install it.
@@ -94,16 +112,7 @@ def get_best_loader(extract_from: str | Path) -> BaseLoader:
                     """)
                     )
 
-                    html_content = requests.get(extract_from).text
-
-                    with NamedTemporaryFile(
-                        delete=False, mode="w", suffix=".html"
-                    ) as f:
-                        f.write(html_content)
-
-                    loader = BSHTMLLoader(file_path=f.name)
-                    f.close()
-                    return loader
+                    yield from Crawl4AILoader(url=extract_from).lazy_load()
         case _:
             raise ValueError("Invalid input")
 
