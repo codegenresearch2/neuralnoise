@@ -14,6 +14,7 @@ from langchain_community.document_loaders import (
 )
 from langchain_community.document_loaders.base import BaseLoader
 from langchain_core.documents import Document
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -38,14 +39,14 @@ class Crawl4AILoader(BaseLoader):
 
         return result
 
-    def lazy_load(self) -> Iterator[Document]:
+    async def lazy_load(self) -> Iterator[Document]:
         """Load HTML document into document objects."""
         # First attempt loading with CSS selector if provided
-        result = run(self.crawl(self.url, self.css_selector))
+        result = await self.crawl(self.url, self.css_selector)
 
         # Second attempt loading without CSS selector if first attempt failed
         if result.markdown is None and self.css_selector is not None:
-            result = run(self.crawl(self.url))
+            result = await self.crawl(self.url)
 
         if result.markdown is None:
             raise ValueError(f"No valid content found at {self.url}")
@@ -56,6 +57,39 @@ class Crawl4AILoader(BaseLoader):
         }
 
         yield Document(page_content=result.markdown, metadata=metadata)
+
+    def _process_result(self, result):
+        """Process the crawl result."""
+        if result.markdown is None:
+            raise ValueError(f"No valid content found at {self.url}")
+        return result.markdown
+
+    def extract_content_from_source(self, extract_from: str | Path) -> str:
+        logger.info(f"Extracting content from {extract_from}")
+        loader = get_best_loader(extract_from)
+        docs = loader.load()
+        content = ""
+
+        for doc in docs:
+            if doc.metadata.get("title"):
+                content += f"\n\n# {doc.metadata['title']}\n\n"
+            content += doc.page_content.strip()
+
+        return content
+
+    async def extract_content(
+        self,
+        extract_from: str | Path | list[str] | list[Path] | list[str | Path],
+    ) -> str:
+        if not isinstance(extract_from, list):
+            extract_from = [extract_from]
+
+        tasks = [self.extract_content_from_source(item) for item in extract_from]
+        results = await asyncio.gather(*tasks)
+
+        return "\n\n".join(
+            f"<document>\n{content}\n</document>" for content in results
+        )
 
 
 def get_best_loader(extract_from: str | Path) -> BaseLoader:
@@ -101,29 +135,3 @@ def get_best_loader(extract_from: str | Path) -> BaseLoader:
                     return loader
         case _:
             raise ValueError("Invalid input")
-
-
-def extract_content_from_source(extract_from: str | Path) -> str:
-    logger.info(f"Extracting content from {extract_from}")
-    loader = get_best_loader(extract_from)
-    docs = loader.load()
-    content = ""
-
-    for doc in docs:
-        if doc.metadata.get("title"):
-            content += f"\n\n# {doc.metadata['title']}\n\n"
-        content += doc.page_content.strip()
-
-    return content
-
-
-def extract_content(
-    extract_from: str | Path | list[str] | list[Path] | list[str | Path],
-) -> str:
-    if not isinstance(extract_from, list):
-        extract_from = [extract_from]
-
-    return "\n\n".join(
-        f"<document>\n{extract_content_from_source(item)}\n</document>"
-        for item in extract_from
-    )
