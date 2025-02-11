@@ -6,7 +6,7 @@ from typing import Any, Literal
 
 from pydub import AudioSegment
 from pydub.effects import normalize
-from tqdm import tqdm
+from rich.progress import track
 
 from neuralnoise.studio import PodcastStudio
 from neuralnoise.tts import generate_audio_segment
@@ -33,9 +33,10 @@ def create_podcast_episode_from_script(
 
     audio_segments = []
 
-    for section_id, segment in tqdm(
+    for section_id, segment in track(
         script_segments,
-        desc="Generating audio segments",
+        description="Generating audio segments...",
+        total=len(script_segments),
     ):
         speaker = config.speakers[segment["speaker"]]
         content = segment["content"]
@@ -45,11 +46,13 @@ def create_podcast_episode_from_script(
         content_hash = hashlib.md5(content.encode("utf-8")).hexdigest()
         segment_path = temp_dir / f"{section_id}_{segment['id']}_{content_hash}.mp3"
 
-        audio_segment = generate_audio_segment(
-            content, speaker, output_path=segment_path
-        )
-
-        audio_segments.append(audio_segment)
+        try:
+            audio_segment = generate_audio_segment(
+                content, speaker, output_path=segment_path
+            )
+            audio_segments.append(audio_segment)
+        except Exception as e:
+            logger.error(f"Error generating audio segment for content: {content}. Error: {e}")
 
         if blank_duration := segment.get("blank_duration"):
             silence = AudioSegment.silent(duration=blank_duration * 1000)
@@ -72,7 +75,7 @@ def create_podcast_episode(
     config_path: str | Path | None = None,
     format: Literal["wav", "mp3", "ogg"] = "wav",
     only_script: bool = False,
-) -> AudioSegment | None:
+):
     # Create output directory
     output_dir = Path("output") / name
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -100,11 +103,15 @@ def create_podcast_episode(
         script_path.write_text(json.dumps(script, ensure_ascii=False))
 
     if only_script:
-        return None
+        return
 
     # Generate audio segments and create the podcast
     logger.info("🎙️  Recording podcast episode")
-    podcast = create_podcast_episode_from_script(script, config, output_dir=output_dir)
+    try:
+        podcast = create_podcast_episode_from_script(script, config, output_dir=output_dir)
+    except Exception as e:
+        logger.error(f"Error creating podcast episode: {e}")
+        raise
 
     # Export podcast
     podcast_filepath = output_dir / f"output.{format}"
@@ -112,5 +119,3 @@ def create_podcast_episode(
     podcast.export(podcast_filepath, format=format)
 
     logger.info("✅  Podcast generation complete")
-
-    return podcast
